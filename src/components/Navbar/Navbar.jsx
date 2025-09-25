@@ -1,3 +1,19 @@
+import { NavLink } from "react-router"
+import './Navbar.css'
+
+
 export default function Navbar() {
-    return <h1>Navbar</h1> 
+    return (
+        <header>
+            <nav className="nav">
+                <NavLink to='/'>Home</NavLink>
+                <NavLink to='/media'>Media</NavLink>
+                <NavLink to='/contact'>Contact</NavLink>
+                <NavLink to='/adminLogin'>Admin Login</NavLink>
+                <NavLink to='/bioForm'>Bio Form</NavLink>
+                <NavLink to='/eventsForm'>Events Form</NavLink>
+                <NavLink to ='/mediaForm'>Media Form</NavLink>
+            </nav>
+        </header>
+    )
 }
