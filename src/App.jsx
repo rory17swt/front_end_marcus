@@ -6,6 +6,7 @@ import Contact from './components/Contact/Contact'
 import AdminLogin from './components/AdminLogin/AdminLogin'
 import BioForm from './components/BioForm/BioForm'
 import EventCreate from "./components/EventCreate/EventCreate"
+import EventUpdate from "./components/EventUpdate/EventUpdate"
 import MediaForm from './components/MediaForm/MediaForm'
 import Navbar from './components/Navbar/Navbar'
 import Footer from './components/Footer/Footer'
@@ -22,7 +23,8 @@ function App() {
       <Route path='/contact' element={<Contact />} />
       <Route path='/adminLogin' element={<AdminLogin />} />
       <Route path='/bioForm' element={<BioForm />} />
-      <Route path='/eventCreate' element={<EventCreate />} />
+      <Route path='/events/create' element={<EventCreate />} />
+      <Route path='/events/:eventId/update' element={<EventUpdate />} />
       <Route path='/mediaForm' element={<MediaForm />} />
     </Routes>
     <Footer />
