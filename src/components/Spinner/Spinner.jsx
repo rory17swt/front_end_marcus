@@ -1,3 +1,3 @@
 export default function Spinner() {
-    return <h1>Spinner</h1> 
+    return <h2>Spinner</h2> 
 }

@@ -11,7 +11,7 @@ export default function Navbar() {
                 <NavLink to='/contact'>Contact</NavLink>
                 <NavLink to='/adminLogin'>Admin Login</NavLink>
                 <NavLink to='/bioForm'>Bio Form</NavLink>
-                <NavLink to='/eventsForm'>Events Form</NavLink>
+                <NavLink to='/eventCreate'>Event Create</NavLink>
                 <NavLink to ='/mediaForm'>Media Form</NavLink>
             </nav>
         </header>
