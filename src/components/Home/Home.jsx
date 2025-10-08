@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getAllEvents } from '../../services/events'
+import { getAllEvents, deleteEvent } from '../../services/events'
 import { getPublicBio } from '../../services/bio'
 import Spinner from '../Spinner/Spinner'
 
@@ -9,6 +9,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [startIndex, setStartIndex] = useState(0)
+  const [deletingId, setDeletingId] = useState(null)
 
   const EVENTS_PER_PAGE = 4
 
@@ -43,6 +44,20 @@ export default function Home() {
     setStartIndex(prev => Math.min(prev + 1, events.length - EVENTS_PER_PAGE))
   }
 
+  async function handleDelete(eventId) {
+    if (!window.confirm('Are you sure you want to delete this event?')) return
+    setDeletingId(eventId)
+    try {
+      await deleteEvent(eventId)
+      setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId))
+    } catch (err) {
+      alert('Failed to delete event')
+      console.error(err)
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   const visibleEvents = events.slice(startIndex, startIndex + EVENTS_PER_PAGE)
 
   if (loading) return <Spinner />
@@ -51,20 +66,18 @@ export default function Home() {
   return (
     <div>
       <section>
-        {bio.bio && (
+        {bio?.bio && (
           <div dangerouslySetInnerHTML={{ __html: bio.bio }} />
         )}
-        {bio.cv ? (
-          <>
-            <a
-              href={bio.cv}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ marginRight: '15px' }}
-            >
-              View CV
-            </a>
-          </>
+        {bio?.cv ? (
+          <a
+            href={bio.cv}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ marginRight: '15px' }}
+          >
+            View CV
+          </a>
         ) : (
           <p>CV not available.</p>
         )}
@@ -84,45 +97,71 @@ export default function Home() {
             {/* Carousel Events */}
             <div style={{ display: 'flex', overflow: 'hidden' }}>
               {visibleEvents.map(event => (
-                <a
-                  href={event.event_url}
+                <div
                   key={event.id}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   style={{
                     display: 'inline-block',
                     margin: '10px',
-                    textDecoration: 'none',
-                    color: 'inherit',
                     border: '1px solid #ccc',
                     borderRadius: '8px',
                     padding: '10px',
                     width: '160px',
                     textAlign: 'center',
                     flexShrink: 0,
+                    position: 'relative',
+                    backgroundColor: '#fff',
+                    color: '#000',  // force text black
                   }}
                 >
-                  <img
-                    src={event.image}
-                    alt={event.title}
+                  <a
+                    href={event.event_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                  >
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      style={{
+                        width: '150px',
+                        height: '100px', // fixed height to avoid layout breaking
+                        borderRadius: '8px',
+                        objectFit: 'cover',
+                      }}
+                    />
+                    <div>
+                      <h3>{event.title}</h3>
+                      <p>
+                        {new Date(event.datetime).toLocaleString(undefined, {
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
+                        })}
+                      </p>
+                      <p>{event.location}</p>
+                    </div>
+                  </a>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => handleDelete(event.id)}
+                    disabled={deletingId === event.id}
                     style={{
-                      width: '150px',
-                      height: 'auto',
-                      borderRadius: '8px',
-                      objectFit: 'cover',
+                      position: 'absolute',
+                      top: 5,
+                      right: 5,
+                      backgroundColor: '#ff4d4f',
+                      border: 'none',
+                      color: 'white',
+                      padding: '5px 8px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      zIndex: 10,
                     }}
-                  />
-                  <div>
-                    <h3>{event.title}</h3>
-                    <p>
-                      {new Date(event.datetime).toLocaleString(undefined, {
-                        dateStyle: 'medium',
-                        timeStyle: 'short',
-                      })}
-                    </p>
-                    <p>{event.location}</p>
-                  </div>
-                </a>
+                    aria-label={`Delete ${event.title}`}
+                  >
+                    {deletingId === event.id ? 'Deleting...' : 'Delete'}
+                  </button>
+                </div>
               ))}
             </div>
 
