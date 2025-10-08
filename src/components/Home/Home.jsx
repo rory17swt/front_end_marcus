@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { getAllEvents, deleteEvent } from '../../services/events'
 import { getPublicBio } from '../../services/bio'
 import Spinner from '../Spinner/Spinner'
@@ -12,6 +13,7 @@ export default function Home() {
   const [deletingId, setDeletingId] = useState(null)
 
   const EVENTS_PER_PAGE = 4
+  const navigate = useNavigate()
 
   useEffect(() => {
     async function fetchData() {
@@ -56,6 +58,10 @@ export default function Home() {
     } finally {
       setDeletingId(null)
     }
+  }
+
+  function handleUpdate(eventId) {
+    navigate(`/events/${eventId}/update`)
   }
 
   const visibleEvents = events.slice(startIndex, startIndex + EVENTS_PER_PAGE)
@@ -110,7 +116,7 @@ export default function Home() {
                     flexShrink: 0,
                     position: 'relative',
                     backgroundColor: '#fff',
-                    color: '#000',  // force text black
+                    color: '#000'
                   }}
                 >
                   <a
@@ -124,7 +130,7 @@ export default function Home() {
                       alt={event.title}
                       style={{
                         width: '150px',
-                        height: '100px', // fixed height to avoid layout breaking
+                        height: '100px',
                         borderRadius: '8px',
                         objectFit: 'cover',
                       }}
@@ -160,6 +166,26 @@ export default function Home() {
                     aria-label={`Delete ${event.title}`}
                   >
                     {deletingId === event.id ? 'Deleting...' : 'Delete'}
+                  </button>
+
+                  {/* Update Button */}
+                  <button
+                    onClick={() => handleUpdate(event.id)}
+                    style={{
+                      position: 'absolute',
+                      top: 40,
+                      right: 5,
+                      backgroundColor: '#1890ff',
+                      border: 'none',
+                      color: 'white',
+                      padding: '5px 8px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      zIndex: 10,
+                    }}
+                    aria-label={`Update ${event.title}`}
+                  >
+                    Update
                   </button>
                 </div>
               ))}
