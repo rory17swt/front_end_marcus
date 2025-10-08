@@ -20,7 +20,9 @@ export default function Home() {
           getPublicBio(),
           getAllEvents()
         ])
-        const sortedEvents = eventsRes.data.sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
+        const sortedEvents = eventsRes.data.sort(
+          (a, b) => new Date(a.datetime) - new Date(b.datetime)
+        )
         setBio(bioRes.data)
         setEvents(sortedEvents)
       } catch (error) {
@@ -52,8 +54,19 @@ export default function Home() {
         {bio.bio && (
           <div dangerouslySetInnerHTML={{ __html: bio.bio }} />
         )}
-        {bio.cv && (
-          <a href={bio.cv} target="_blank" rel="noopener noreferrer">Download CV</a>
+        {bio.cv ? (
+          <>
+            <a
+              href={bio.cv}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ marginRight: '15px' }}
+            >
+              View CV
+            </a>
+          </>
+        ) : (
+          <p>CV not available.</p>
         )}
       </section>
 
@@ -96,15 +109,17 @@ export default function Home() {
                       width: '150px',
                       height: 'auto',
                       borderRadius: '8px',
-                      objectFit: 'cover'
+                      objectFit: 'cover',
                     }}
                   />
                   <div>
                     <h3>{event.title}</h3>
-                    <p>{new Date(event.datetime).toLocaleString(undefined, {
-                      dateStyle: 'medium',
-                      timeStyle: 'short'
-                    })}</p>
+                    <p>
+                      {new Date(event.datetime).toLocaleString(undefined, {
+                        dateStyle: 'medium',
+                        timeStyle: 'short',
+                      })}
+                    </p>
                     <p>{event.location}</p>
                   </div>
                 </a>
