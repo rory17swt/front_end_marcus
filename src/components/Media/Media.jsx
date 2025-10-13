@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getAllMedia } from '../../services/media'
 import Spinner from '../Spinner/Spinner'
+import MediaDelete from '../MediaDelete/MediaDelete'
 
 export default function MediaList() {
   const [media, setMedia] = useState([])
@@ -50,6 +51,10 @@ export default function MediaList() {
     setImageStartIndex(prev => Math.min(prev + IMAGES_PER_PAGE, images.length - IMAGES_PER_PAGE))
   }
 
+  function handleDeleteSuccess(mediaId) {
+    setMedia(prevMedia => prevMedia.filter(item => item.id !== mediaId))
+  }
+
   // Separate images and videos
   const images = media.filter(item => item.image && !item.youtube_url)
   const videos = media.filter(item => item.youtube_url)
@@ -89,7 +94,7 @@ export default function MediaList() {
               marginTop: '20px'
             }}>
               {visibleImages.map(item => (
-                <div key={item.id}>
+                <div key={item.id} style={{ position: 'relative' }}>
                   <img 
                     src={item.image} 
                     alt="Media" 
@@ -101,6 +106,15 @@ export default function MediaList() {
                       timeStyle: 'short',
                     })}
                   </p>
+                  
+                  {/* Delete Button */}
+                  <div style={{
+                    position: 'absolute',
+                    top: 5,
+                    right: 5,
+                  }}>
+                    <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
+                  </div>
                 </div>
               ))}
             </div>
@@ -120,7 +134,7 @@ export default function MediaList() {
             gap: '20px'
           }}>
             {videos.map(item => (
-              <div key={item.id}>
+              <div key={item.id} style={{ position: 'relative' }}>
                 <iframe
                   width="100%"
                   height="200"
@@ -136,6 +150,15 @@ export default function MediaList() {
                     timeStyle: 'short',
                   })}
                 </p>
+                
+                {/* Delete Button */}
+                <div style={{
+                  position: 'absolute',
+                  top: 5,
+                  right: 5,
+                }}>
+                  <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
+                </div>
               </div>
             ))}
           </div>
