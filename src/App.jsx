@@ -25,7 +25,7 @@ function App() {
       <Route path='/bioForm' element={<BioForm />} />
       <Route path='/events/create' element={<EventCreate />} />
       <Route path='/events/:eventId/update' element={<EventUpdate />} />
-      <Route path='/mediaForm' element={<MediaForm />} />
+      <Route path='/media/create' element={<MediaForm />} />
     </Routes>
     <Footer />
     </>
