@@ -6,6 +6,10 @@ export default function MediaList() {
   const [media, setMedia] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [imageStartIndex, setImageStartIndex] = useState(0)
+
+  const IMAGES_PER_PAGE = 8 // 4x2 grid
+  const VIDEOS_PER_ROW = 3
 
   useEffect(() => {
     async function fetchData() {
@@ -38,43 +42,95 @@ export default function MediaList() {
     return null
   }
 
+  function handleImagePrev() {
+    setImageStartIndex(prev => Math.max(prev - IMAGES_PER_PAGE, 0))
+  }
+
+  function handleImageNext() {
+    setImageStartIndex(prev => Math.min(prev + IMAGES_PER_PAGE, images.length - IMAGES_PER_PAGE))
+  }
+
+  // Separate images and videos
+  const images = media.filter(item => item.image && !item.youtube_url)
+  const videos = media.filter(item => item.youtube_url)
+
+  const visibleImages = images.slice(imageStartIndex, imageStartIndex + IMAGES_PER_PAGE)
+
   if (loading) return <Spinner />
   if (error) return <p>{error}</p>
 
   return (
     <div>
+      {/* Images Section */}
       <section>
-        <h2>Media Gallery</h2>
-        {media.length === 0 ? (
-          <p>No media available.</p>
+        <h2>Images</h2>
+        {images.length === 0 ? (
+          <p>No images available.</p>
         ) : (
           <div>
-            {media.map(item => (
-              <div key={item.id}>
-                {/* Image */}
-                {item.image && (
+            {/* Carousel Controls */}
+            <div>
+              <button onClick={handleImagePrev} disabled={imageStartIndex === 0}>
+                ← Previous
+              </button>
+              <button 
+                onClick={handleImageNext} 
+                disabled={imageStartIndex + IMAGES_PER_PAGE >= images.length}
+              >
+                Next →
+              </button>
+            </div>
+
+            {/* 4x2 Grid */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(4, 1fr)', 
+              gap: '20px',
+              marginTop: '20px'
+            }}>
+              {visibleImages.map(item => (
+                <div key={item.id}>
                   <img 
                     src={item.image} 
                     alt="Media" 
-                    style={{ maxWidth: '300px', height: 'auto' }}
+                    style={{ width: '100%', height: '200px', objectFit: 'cover' }}
                   />
-                )}
+                  <p style={{ fontSize: '12px', marginTop: '5px' }}>
+                    {new Date(item.created_at).toLocaleString(undefined, {
+                      dateStyle: 'medium',
+                      timeStyle: 'short',
+                    })}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
 
-                {/* YouTube Video */}
-                {item.youtube_url && (
-                  <iframe
-                    width="560"
-                    height="315"
-                    src={getYoutubeEmbedUrl(item.youtube_url)}
-                    title="YouTube video"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                )}
-
-                {/* Created Date */}
-                <p>
+      {/* Videos Section */}
+      <section style={{ marginTop: '40px' }}>
+        <h2>Videos</h2>
+        {videos.length === 0 ? (
+          <p>No videos available.</p>
+        ) : (
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: '20px'
+          }}>
+            {videos.map(item => (
+              <div key={item.id}>
+                <iframe
+                  width="100%"
+                  height="200"
+                  src={getYoutubeEmbedUrl(item.youtube_url)}
+                  title="YouTube video"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+                <p style={{ fontSize: '12px', marginTop: '5px' }}>
                   {new Date(item.created_at).toLocaleString(undefined, {
                     dateStyle: 'medium',
                     timeStyle: 'short',

@@ -42,7 +42,7 @@ export default function MediaCreate() {
         setIsLoading(true)
         try {
             const { data } = await createMedia(formData)
-            navigate('/')
+            navigate('/media')
         } catch (error) {
             setError(error.response.data)
         } finally {
