@@ -2,7 +2,7 @@ import { useNavigate } from "react-router"
 import { useState, useContext } from 'react'
 
 import { logIn } from "../../services/auth"
-import { setToken, getUserFromToken } from "../../utils/auth"
+import { setToken } from "../../utils/auth"
 import { UserContext } from "../../contexts/UserContext"
 
 
@@ -29,7 +29,7 @@ export default function AdminLogin() {
         try {
             const { data } = await logIn(formData)
             setToken(data.access)
-            setUser(getUserFromToken())
+            setUser(data.user)
             navigate('/')
         } catch (error) {
             setError(error.response.data)

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { NavLink } from 'react-router'
 import { FaInstagram, FaYoutube } from 'react-icons/fa'
 
 export default function Footer() {
@@ -26,9 +27,21 @@ export default function Footer() {
       marginTop: '40px',
       color: '#000'
     }}>
-      {/* Left - Name */}
+      {/* Left - Name & Admin Login */}
       <div>
         <h3 style={{ margin: 0, fontSize: '18px', color: '#000' }}>Marcus Swietlicki</h3>
+        <NavLink 
+          to='/adminLogin' 
+          style={{ 
+            fontSize: '12px', 
+            color: '#666', 
+            textDecoration: 'none',
+            display: 'block',
+            marginTop: '5px'
+          }}
+        >
+          Admin Login
+        </NavLink>
       </div>
 
       {/* Middle - Social Icons */}
