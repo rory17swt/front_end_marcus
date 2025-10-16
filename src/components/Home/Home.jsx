@@ -11,6 +11,7 @@ export default function Home() {
   const [error, setError] = useState(null)
   const [startIndex, setStartIndex] = useState(0)
   const [deletingId, setDeletingId] = useState(null)
+  const [showFullBio, setShowFullBio] = useState(false)
 
   const EVENTS_PER_PAGE = 4
   const navigate = useNavigate()
@@ -64,6 +65,25 @@ export default function Home() {
     navigate(`/events/${eventId}/update`)
   }
 
+  function getBioPreview() {
+    if (!bio?.bio) return ''
+    
+    // Split the bio HTML to find the split point
+    const splitText = 'selected recordings, and latest press quotes below.'
+    const bioHTML = bio.bio
+    
+    const splitIndex = bioHTML.indexOf(splitText)
+    
+    if (splitIndex === -1) {
+      // If split text not found, show first paragraph
+      const firstParagraphEnd = bioHTML.indexOf('</p>')
+      return firstParagraphEnd !== -1 ? bioHTML.substring(0, firstParagraphEnd + 4) : bioHTML
+    }
+    
+    // Include the split text and close any open tags
+    return bioHTML.substring(0, splitIndex + splitText.length)
+  }
+
   const visibleEvents = events.slice(startIndex, startIndex + EVENTS_PER_PAGE)
 
   if (loading) return <Spinner />
@@ -72,15 +92,37 @@ export default function Home() {
   return (
     <div>
       <section>
+        <h1>Biography</h1>
         {bio?.bio && (
-          <div dangerouslySetInnerHTML={{ __html: bio.bio }} />
+          <>
+            <div dangerouslySetInnerHTML={{ 
+              __html: showFullBio ? bio.bio : getBioPreview() 
+            }} />
+            
+            {bio.bio.includes('selected recordings, and latest press quotes below.') && (
+              <button 
+                onClick={() => setShowFullBio(!showFullBio)}
+                style={{
+                  marginTop: '10px',
+                  padding: '8px 16px',
+                  backgroundColor: '#1890ff',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                {showFullBio ? 'Read Less' : 'Read More'}
+              </button>
+            )}
+          </>
         )}
         {bio?.cv ? (
           <a
             href={bio.cv}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ marginRight: '15px' }}
+            style={{ marginRight: '15px', display: 'block', marginTop: '15px' }}
           >
             View CV
           </a>
