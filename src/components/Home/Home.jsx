@@ -69,70 +69,50 @@ export default function Home() {
   function getBioPreview() {
     if (!bio?.bio) return ''
     
-    // Split the bio HTML to find the split point
     const splitText = 'selected recordings, and latest press quotes below.'
     const bioHTML = bio.bio
     
     const splitIndex = bioHTML.indexOf(splitText)
     
     if (splitIndex === -1) {
-      // If split text not found, show first paragraph
       const firstParagraphEnd = bioHTML.indexOf('</p>')
       return firstParagraphEnd !== -1 ? bioHTML.substring(0, firstParagraphEnd + 4) : bioHTML
     }
     
-    // Include the split text and close any open tags
     return bioHTML.substring(0, splitIndex + splitText.length)
   }
 
   const visibleEvents = events.slice(startIndex, startIndex + EVENTS_PER_PAGE)
 
   if (loading) return <Spinner />
-  if (error) return <p>{error}</p>
+  if (error) return <p className="text-red-600">{error}</p>
 
   return (
-    <div>
-      {/* Cover Photo with Overlay */}
-      <section style={{ position: 'relative', marginBottom: '40px' }}>
+    <div className="min-h-screen bg-[#F5F1E8]">
+      <div className="max-w-6xl mx-auto bg-white shadow-lg">
+        {/* Cover Photo with Overlay */}
+        <section className="relative mb-10">
         <img 
           src="/Home page.jpg" 
           alt="Marcus Swietlicki" 
-          style={{ 
-            width: '100%', 
-            height: '400px', 
-            objectFit: 'cover',
-            display: 'block'
-          }} 
+          className="w-full h-[400px] object-cover block"
         />
         
         {/* Overlay Content */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          padding: '20px 40px'
-        }}>
+        <div className="absolute top-0 left-0 right-0 flex justify-between items-start p-5 md:px-10">
           {/* Name on Left */}
-          <h1 style={{ 
-            margin: 0, 
-            color: 'white', 
-            fontSize: '32px',
-            textShadow: '2px 2px 4px rgba(0,0,0,0.7)'
-          }}>
+          <h1 className="m-0 text-white text-2xl md:text-3xl font-bold" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}>
             MARCUS SWIETLICKI
           </h1>
           
           {/* Social Icons on Right */}
-          <div style={{ display: 'flex', gap: '15px' }}>
+          <div className="flex gap-4">
             <a
               href="https://www.instagram.com/marcusswietlicki_tenor/?hl=en"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: 'white', fontSize: '32px', textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}
+              className="text-white text-3xl hover:opacity-80 transition-opacity"
+              style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}
               aria-label="Instagram"
             >
               <FaInstagram />
@@ -141,7 +121,8 @@ export default function Home() {
               href="https://www.youtube.com/@marcusmacleodswietlicki959/featured"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: 'white', fontSize: '32px', textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}
+              className="text-white text-3xl hover:opacity-80 transition-opacity"
+              style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}
               aria-label="YouTube"
             >
               <FaYoutube />
@@ -150,26 +131,21 @@ export default function Home() {
         </div>
       </section>
 
-      <section>
-        <h1>Biography</h1>
+      <section className="px-4 md:px-10 mb-10">
+        <h1 className="text-3xl font-bold mb-4">Biography</h1>
         {bio?.bio && (
           <>
-            <div dangerouslySetInnerHTML={{ 
-              __html: showFullBio ? bio.bio : getBioPreview() 
-            }} />
+            <div 
+              className="prose max-w-none mb-4"
+              dangerouslySetInnerHTML={{ 
+                __html: showFullBio ? bio.bio : getBioPreview() 
+              }} 
+            />
             
             {bio.bio.includes('selected recordings, and latest press quotes below.') && (
               <button 
                 onClick={() => setShowFullBio(!showFullBio)}
-                style={{
-                  marginTop: '10px',
-                  padding: '8px 16px',
-                  backgroundColor: '#1890ff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                }}
+                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
               >
                 {showFullBio ? 'Read Less' : 'Read More'}
               </button>
@@ -181,70 +157,57 @@ export default function Home() {
             href={bio.cv}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ marginRight: '15px', display: 'block', marginTop: '15px' }}
+            className="inline-block mt-4 text-blue-500 hover:underline"
           >
             View CV
           </a>
         ) : (
-          <p>CV not available.</p>
+          <p className="mt-4 text-gray-600">CV not available.</p>
         )}
       </section>
 
-      <section>
-        <h2>Upcoming Events</h2>
+      <section className="px-4 md:px-10 mb-10">
+        <h2 className="text-2xl font-bold mb-4">Upcoming Events</h2>
         {events.length === 0 ? (
-          <p>No upcoming events.</p>
+          <p className="text-gray-600">No upcoming events.</p>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div className="flex items-center gap-2">
             {/* Prev Button */}
-            <button onClick={handlePrev} disabled={startIndex === 0}>
+            <button 
+              onClick={handlePrev} 
+              disabled={startIndex === 0}
+              className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
               ←
             </button>
 
             {/* Carousel Events */}
-            <div style={{ display: 'flex', overflow: 'hidden' }}>
+            <div className="flex overflow-hidden flex-1">
               {visibleEvents.map(event => (
                 <div
                   key={event.id}
-                  style={{
-                    display: 'inline-block',
-                    margin: '10px',
-                    border: '1px solid #ccc',
-                    borderRadius: '8px',
-                    padding: '10px',
-                    width: '160px',
-                    textAlign: 'center',
-                    flexShrink: 0,
-                    position: 'relative',
-                    backgroundColor: '#fff',
-                    color: '#000'
-                  }}
+                  className="inline-block m-2 border border-gray-300 rounded-lg p-2 w-40 text-center flex-shrink-0 relative bg-white"
                 >
                   <a
                     href={event.event_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                    className="no-underline text-black block"
                   >
                     <img
                       src={event.image}
                       alt={event.title}
-                      style={{
-                        width: '150px',
-                        height: '100px',
-                        borderRadius: '8px',
-                        objectFit: 'cover',
-                      }}
+                      className="w-full h-24 rounded-lg object-cover"
                     />
                     <div>
-                      <h3>{event.title}</h3>
-                      <p>
+                      <h3 className="text-sm font-semibold mt-2">{event.title}</h3>
+                      <p className="text-xs text-gray-600">
                         {new Date(event.datetime).toLocaleString(undefined, {
                           dateStyle: 'medium',
                           timeStyle: 'short',
                         })}
                       </p>
-                      <p>{event.location}</p>
+                      <p className="text-xs text-gray-600">{event.location}</p>
                     </div>
                   </a>
 
@@ -252,18 +215,7 @@ export default function Home() {
                   <button
                     onClick={() => handleDelete(event.id)}
                     disabled={deletingId === event.id}
-                    style={{
-                      position: 'absolute',
-                      top: 5,
-                      right: 5,
-                      backgroundColor: '#ff4d4f',
-                      border: 'none',
-                      color: 'white',
-                      padding: '5px 8px',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      zIndex: 10,
-                    }}
+                    className="absolute top-1 right-1 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 disabled:opacity-50 transition-colors z-10"
                     aria-label={`Delete ${event.title}`}
                   >
                     {deletingId === event.id ? 'Deleting...' : 'Delete'}
@@ -272,18 +224,7 @@ export default function Home() {
                   {/* Update Button */}
                   <button
                     onClick={() => handleUpdate(event.id)}
-                    style={{
-                      position: 'absolute',
-                      top: 40,
-                      right: 5,
-                      backgroundColor: '#1890ff',
-                      border: 'none',
-                      color: 'white',
-                      padding: '5px 8px',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      zIndex: 10,
-                    }}
+                    className="absolute top-10 right-1 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors z-10"
                     aria-label={`Update ${event.title}`}
                   >
                     Update
@@ -296,12 +237,14 @@ export default function Home() {
             <button
               onClick={handleNext}
               disabled={startIndex + EVENTS_PER_PAGE >= events.length}
+              className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               →
             </button>
           </div>
         )}
       </section>
+      </div>
     </div>
   )
 }
