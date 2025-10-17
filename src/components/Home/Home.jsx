@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { getAllEvents, deleteEvent } from '../../services/events'
 import { getPublicBio } from '../../services/bio'
+import { FaInstagram, FaYoutube } from 'react-icons/fa'
 import Spinner from '../Spinner/Spinner'
 
 export default function Home() {
@@ -91,6 +92,64 @@ export default function Home() {
 
   return (
     <div>
+      {/* Cover Photo with Overlay */}
+      <section style={{ position: 'relative', marginBottom: '40px' }}>
+        <img 
+          src="public/Home page.jpg" 
+          alt="Marcus Swietlicki" 
+          style={{ 
+            width: '100%', 
+            height: '400px', 
+            objectFit: 'cover',
+            display: 'block'
+          }} 
+        />
+        
+        {/* Overlay Content */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          padding: '20px 40px'
+        }}>
+          {/* Name on Left */}
+          <h1 style={{ 
+            margin: 0, 
+            color: 'white', 
+            fontSize: '32px',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.7)'
+          }}>
+            MARCUS SWIETLICKI
+          </h1>
+          
+          {/* Social Icons on Right */}
+          <div style={{ display: 'flex', gap: '15px' }}>
+            <a
+              href="https://www.instagram.com/marcusswietlicki_tenor/?hl=en"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'white', fontSize: '32px', textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}
+              aria-label="Instagram"
+            >
+              <FaInstagram />
+            </a>
+            <a
+              href="https://www.youtube.com/@marcusmacleodswietlicki959/featured"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'white', fontSize: '32px', textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}
+              aria-label="YouTube"
+            >
+              <FaYoutube />
+            </a>
+          </div>
+        </div>
+      </section>
+
       <section>
         <h1>Biography</h1>
         {bio?.bio && (
