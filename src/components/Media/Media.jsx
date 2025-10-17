@@ -66,6 +66,19 @@ export default function MediaList() {
 
   return (
     <div>
+      {/* Cover Photo */}
+      <section style={{ marginBottom: '40px' }}>
+        <img 
+          src="/Media Front Photo.jpg" 
+          alt="Media" 
+          style={{ 
+            width: '100%', 
+            height: 'auto',
+            display: 'block'
+          }} 
+        />
+      </section>
+
       {/* Images Section */}
       <section>
         <h2>Images</h2>

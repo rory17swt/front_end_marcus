@@ -95,7 +95,7 @@ export default function Home() {
       {/* Cover Photo with Overlay */}
       <section style={{ position: 'relative', marginBottom: '40px' }}>
         <img 
-          src="public/Home page.jpg" 
+          src="/Home page.jpg" 
           alt="Marcus Swietlicki" 
           style={{ 
             width: '100%', 

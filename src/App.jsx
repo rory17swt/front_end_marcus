@@ -32,7 +32,6 @@ function App() {
 
   return (
     <>
-      <h1>Marcus Portfolio</h1>
       <Navbar />
       
       {!isPageReady ? (

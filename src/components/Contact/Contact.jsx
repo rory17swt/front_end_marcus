@@ -54,6 +54,19 @@ export default function Contact() {
 
     return (
         <div>
+            {/* Cover Photo */}
+            <section style={{ marginBottom: '40px' }}>
+                <img 
+                    src="/Contact page.jpg" 
+                    alt="Contact" 
+                    style={{ 
+                        width: '100%', 
+                        height: 'auto',
+                        display: 'block'
+                    }} 
+                />
+            </section>
+
             <section>
                 <form onSubmit={handleSubmit}>
                     <h1>Contact</h1>
@@ -158,7 +171,7 @@ export default function Contact() {
                     textAlign: 'center'
                 }}>
                     <p style={{ margin: '0 0 10px 0', color: '#155724', fontWeight: 'bold' }}>
-                        Thanks for reaching out! Your message has been sent to Marcus, and he’ll get back to you as soon as possible.
+                        Thanks for reaching out! Your message has been sent to Marcus, and he'll get back to you as soon as possible.
                     </p>
                     <button
                         onClick={() => setShowSuccessPopup(false)}
