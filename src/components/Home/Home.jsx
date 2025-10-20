@@ -88,8 +88,8 @@ export default function Home() {
   if (error) return <p className="text-red-600">{error}</p>
 
   return (
-    <div className="min-h-screen bg-[#F5F1E8]">
-      <div className="max-w-6xl mx-auto bg-white shadow-lg">
+    <div className="min-h-screen bg-[#E8DCC8]">
+      <div className="max-w-6xl mx-auto bg-white shadow-lg pb-0">
         {/* Cover Photo with Overlay */}
         <section className="relative mb-10">
         <img 
@@ -101,8 +101,8 @@ export default function Home() {
         {/* Overlay Content */}
         <div className="absolute top-0 left-0 right-0 flex justify-between items-start p-5 md:px-10">
           {/* Name on Left */}
-          <h1 className="m-0 text-white text-2xl md:text-3xl font-bold" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}>
-            MARCUS SWIETLICKI
+          <h1 className="m-0 text-white text-3xl md:text-4xl font-signature" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}>
+            Marcus Swietlicki
           </h1>
           
           {/* Social Icons on Right */}
@@ -131,12 +131,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-4 md:px-10 mb-10">
-        <h1 className="text-3xl font-bold mb-4">Biography</h1>
+      <section className="px-4 md:px-10 mb-10 font-body">
+        <h1 className="text-3xl font-serif font-bold mb-4 text-gray-800">Biography</h1>
         {bio?.bio && (
           <>
             <div 
-              className="prose max-w-none mb-4"
+              className="prose prose-lg max-w-none mb-4 text-gray-700 leading-relaxed"
               dangerouslySetInnerHTML={{ 
                 __html: showFullBio ? bio.bio : getBioPreview() 
               }} 
@@ -145,7 +145,7 @@ export default function Home() {
             {bio.bio.includes('selected recordings, and latest press quotes below.') && (
               <button 
                 onClick={() => setShowFullBio(!showFullBio)}
-                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                className="mt-2 mb-6 px-6 py-2 bg-[#C4A77D] text-white rounded hover:bg-[#B59770] transition-colors font-body"
               >
                 {showFullBio ? 'Read Less' : 'Read More'}
               </button>
@@ -157,57 +157,59 @@ export default function Home() {
             href={bio.cv}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block mt-4 text-blue-500 hover:underline"
+            className="inline-block mt-4 ml-8 text-[#C4A77D] hover:text-[#B59770] hover:underline font-body"
           >
             View CV
           </a>
         ) : (
-          <p className="mt-4 text-gray-600">CV not available.</p>
+          <p className="mt-4 ml-8 text-gray-600">CV not available.</p>
         )}
       </section>
 
-      <section className="px-4 md:px-10 mb-10">
-        <h2 className="text-2xl font-bold mb-4">Upcoming Events</h2>
+      <section className="px-4 md:px-10 pb-10">
+        <h2 className="text-2xl font-bold mb-6 text-center font-serif text-gray-800">Upcoming Events</h2>
         {events.length === 0 ? (
-          <p className="text-gray-600">No upcoming events.</p>
+          <p className="text-gray-600 text-center">No upcoming events.</p>
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 max-w-5xl mx-auto">
             {/* Prev Button */}
             <button 
               onClick={handlePrev} 
               disabled={startIndex === 0}
-              className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
             >
               ←
             </button>
 
             {/* Carousel Events */}
-            <div className="flex overflow-hidden flex-1">
+            <div className="flex overflow-hidden flex-1 justify-between gap-3">
               {visibleEvents.map(event => (
                 <div
                   key={event.id}
-                  className="inline-block m-2 border border-gray-300 rounded-lg p-2 w-40 text-center flex-shrink-0 relative bg-white"
+                  className="border border-gray-300 rounded-lg overflow-hidden text-center flex-1 relative"
                 >
                   <a
                     href={event.event_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="no-underline text-black block"
+                    className="no-underline block relative"
                   >
                     <img
                       src={event.image}
                       alt={event.title}
-                      className="w-full h-24 rounded-lg object-cover"
+                      className="w-full h-48 object-cover"
                     />
-                    <div>
-                      <h3 className="text-sm font-semibold mt-2">{event.title}</h3>
-                      <p className="text-xs text-gray-600">
+                    
+                    {/* Text Overlay on Image */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-3">
+                      <h3 className="text-sm font-serif font-semibold">{event.title}</h3>
+                      <p className="text-xs font-body">
                         {new Date(event.datetime).toLocaleString(undefined, {
                           dateStyle: 'medium',
                           timeStyle: 'short',
                         })}
                       </p>
-                      <p className="text-xs text-gray-600">{event.location}</p>
+                      <p className="text-xs font-body">{event.location}</p>
                     </div>
                   </a>
 
@@ -215,7 +217,7 @@ export default function Home() {
                   <button
                     onClick={() => handleDelete(event.id)}
                     disabled={deletingId === event.id}
-                    className="absolute top-1 right-1 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 disabled:opacity-50 transition-colors z-10"
+                    className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 disabled:opacity-50 transition-colors z-10"
                     aria-label={`Delete ${event.title}`}
                   >
                     {deletingId === event.id ? 'Deleting...' : 'Delete'}
@@ -224,7 +226,7 @@ export default function Home() {
                   {/* Update Button */}
                   <button
                     onClick={() => handleUpdate(event.id)}
-                    className="absolute top-10 right-1 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors z-10"
+                    className="absolute top-11 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors z-10"
                     aria-label={`Update ${event.title}`}
                   >
                     Update
@@ -237,13 +239,16 @@ export default function Home() {
             <button
               onClick={handleNext}
               disabled={startIndex + EVENTS_PER_PAGE >= events.length}
-              className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
             >
               →
             </button>
           </div>
         )}
       </section>
+      
+      {/* Gradient Transition to Footer */}
+      <div className="h-16 bg-gradient-to-b from-white to-[#E8DCC8]"></div>
       </div>
     </div>
   )

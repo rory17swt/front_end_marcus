@@ -6,7 +6,7 @@ export default function Footer() {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    // Delay footer appearance by 1 second
+    // Delay footer appearance
     const timer = setTimeout(() => {
       setIsVisible(true)
     }, 1500)
@@ -17,40 +17,25 @@ export default function Footer() {
   if (!isVisible) return null
 
   return (
-    <footer style={{
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '20px 40px',
-      backgroundColor: '#f5f5f5',
-      borderTop: '1px solid #ddd',
-      marginTop: '40px',
-      color: '#000'
-    }}>
+    <footer className="flex justify-between items-center px-10 py-5 bg-[#F5F1E8] border-t border-[#E0D5C7]">
       {/* Left - Name & Admin Login */}
       <div>
-        <h3 style={{ margin: 0, fontSize: '18px', color: '#000' }}>Marcus Swietlicki</h3>
+        <h3 className="m-0 text-lg text-gray-800 font-semibold">Marcus Swietlicki</h3>
         <NavLink 
           to='/adminLogin' 
-          style={{ 
-            fontSize: '12px', 
-            color: '#666', 
-            textDecoration: 'none',
-            display: 'block',
-            marginTop: '5px'
-          }}
+          className="text-xs text-gray-600 no-underline block mt-1 hover:text-[#C4A77D] transition-colors"
         >
           Admin Login
         </NavLink>
       </div>
 
       {/* Middle - Social Icons */}
-      <div style={{ display: 'flex', gap: '20px' }}>
+      <div className="flex gap-5">
         <a
           href="https://www.instagram.com/marcusswietlicki_tenor/?hl=en"
           target="_blank"
           rel="noopener noreferrer"
-          style={{ color: '#000', fontSize: '28px' }}
+          className="text-gray-800 text-3xl hover:text-[#C4A77D] transition-colors"
           aria-label="Instagram"
         >
           <FaInstagram />
@@ -59,7 +44,7 @@ export default function Footer() {
           href="https://www.youtube.com/@marcusmacleodswietlicki959/featured"
           target="_blank"
           rel="noopener noreferrer"
-          style={{ color: '#000', fontSize: '28px' }}
+          className="text-gray-800 text-3xl hover:text-[#C4A77D] transition-colors"
           aria-label="YouTube"
         >
           <FaYoutube />
@@ -67,10 +52,10 @@ export default function Footer() {
       </div>
 
       {/* Right - Copyright Info */}
-      <div style={{ textAlign: 'right', fontSize: '12px', lineHeight: '1.6', color: '#000' }}>
-        <p style={{ margin: 0, color: '#000' }}>MARCUS SWIETLICKI © 2025. ALL RIGHTS RESERVED.</p>
-        <p style={{ margin: 0, color: '#000' }}>PHOTOGRAPHY BY [PHOTOGRAPHER NAME].</p>
-        <p style={{ margin: 0, color: '#000' }}>WEBSITE CREATED BY RORY SWIETLICKI.</p>
+      <div className="text-right text-xs leading-relaxed text-gray-800">
+        <p className="m-0">MARCUS SWIETLICKI © 2025. ALL RIGHTS RESERVED.</p>
+        <p className="m-0">PHOTOGRAPHY BY [PHOTOGRAPHER NAME].</p>
+        <p className="m-0">WEBSITE CREATED BY RORY SWIETLICKI.</p>
       </div>
     </footer>
   )
