@@ -19,41 +19,39 @@ function App() {
   const location = useLocation()
 
   useEffect(() => {
-    // Show loading when route changes
     setIsPageReady(false)
-    
-    // Small delay to ensure content loads smoothly
     const timer = setTimeout(() => {
       setIsPageReady(true)
     }, 150)
-
     return () => clearTimeout(timer)
   }, [location.pathname])
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
       
       {!isPageReady ? (
-        <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="flex-1 flex items-center justify-center">
           <Spinner />
         </div>
       ) : (
         <>
-          <Routes>
-            <Route path='/' element={<Home />} />
-            <Route path='/media' element={<Media />} />
-            <Route path='/contact' element={<Contact />} />
-            <Route path='/adminLogin' element={<AdminLogin />} />
-            <Route path='/bioForm' element={<BioForm />} />
-            <Route path='/events/create' element={<EventCreate />} />
-            <Route path='/events/:eventId/update' element={<EventUpdate />} />
-            <Route path='/media/create' element={<MediaForm />} />
-          </Routes>
+          <div className="flex-1">
+            <Routes>
+              <Route path='/' element={<Home />} />
+              <Route path='/media' element={<Media />} />
+              <Route path='/contact' element={<Contact />} />
+              <Route path='/adminLogin' element={<AdminLogin />} />
+              <Route path='/bioForm' element={<BioForm />} />
+              <Route path='/events/create' element={<EventCreate />} />
+              <Route path='/events/:eventId/update' element={<EventUpdate />} />
+              <Route path='/media/create' element={<MediaForm />} />
+            </Routes>
+          </div>
           <Footer />
         </>
       )}
-    </>
+    </div>
   )
 }
 

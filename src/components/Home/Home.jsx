@@ -88,8 +88,8 @@ export default function Home() {
   if (error) return <p className="text-red-600">{error}</p>
 
   return (
-    <div className="min-h-screen bg-[#E8DCC8]">
-      <div className="max-w-6xl mx-auto bg-white shadow-lg pb-0">
+    <div className="min-h-screen bg-[#E8DCC8] px-12">
+      <div className="w-full max-w-[calc(100%-6rem)] mx-auto bg-white shadow-lg pb-0">
         {/* Cover Photo with Overlay */}
         <section className="relative mb-10">
         <img 
