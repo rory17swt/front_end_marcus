@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router'
 import { getAllEvents, deleteEvent } from '../../services/events'
 import { getPublicBio } from '../../services/bio'
@@ -14,9 +14,11 @@ export default function Home() {
   const [deletingId, setDeletingId] = useState(null)
   const [showFullBio, setShowFullBio] = useState(false)
   const [scrollY, setScrollY] = useState(0)
+  const [bioHeight, setBioHeight] = useState(0)
 
   const EVENTS_PER_PAGE = 4
   const navigate = useNavigate()
+  const bioRef = useRef(null)
 
   useEffect(() => {
     async function fetchData() {
@@ -43,6 +45,12 @@ export default function Home() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [])
+
+  useEffect(() => {
+  if (bioRef.current) {
+    setBioHeight(bioRef.current.scrollHeight);
+  }
+}, [bio, showFullBio])
 
   function handlePrev() {
     setStartIndex(prev => Math.max(prev - 1, 0))
@@ -143,7 +151,7 @@ export default function Home() {
         {/* Subtle Wave Transition */}
         <div className="absolute bottom-0 w-full overflow-hidden leading-none">
           <svg
-            className="w-full h-6 md:h-8"
+            className="w-full h-6 md:h-10"
             viewBox="0 0 1440 80"
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -159,18 +167,23 @@ export default function Home() {
       {/* ✅ Main White Content Box */}
       <div className="w-full max-w-[calc(100%-6rem)] mx-auto bg-white shadow-lg pb-0">
         {/* Biography Section */}
-        <section className="px-4 md:px-10 mb-10 font-body">
+        <section className="pt-10 px-4 md:px-10 mb-10 font-body">
           {bio?.bio && (
             <>
               <div
-                className="prose prose-lg max-w-none mb-4 text-gray-700 leading-relaxed"
+                ref={bioRef}
+                className="prose prose-lg max-w-none mb-4 text-gray-700 leading-relaxed overflow-hidden transition-all duration-500 ease-in-out"
+                style={{ maxHeight: showFullBio ? `${bioHeight}px` : '150px' }}
                 dangerouslySetInnerHTML={{
-                  __html: showFullBio ? bio.bio : getBioPreview()
+                  __html: bio.bio
                 }}
               />
               {bio.bio.includes('selected recordings, and latest press quotes below.') && (
                 <button
-                  onClick={() => setShowFullBio(!showFullBio)}
+                  onClick={() => {
+                    setShowFullBio(prev => !prev);
+                    // triggers animation both ways
+                  }}
                   className="mt-2 mb-6 px-6 py-2 bg-[#C4A77D] text-white rounded hover:bg-[#B59770] transition-colors font-body"
                 >
                   {showFullBio ? 'Read Less' : 'Read More'}
