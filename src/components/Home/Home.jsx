@@ -1,9 +1,10 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useContext } from 'react'
 import { useNavigate } from 'react-router'
 import { getAllEvents, deleteEvent } from '../../services/events'
 import { getPublicBio } from '../../services/bio'
-import { FaInstagram, FaYoutube } from 'react-icons/fa'
+import { UserContext } from '../../contexts/UserContext'
 import Spinner from '../Spinner/Spinner'
+import { FaInstagram, FaYoutube } from 'react-icons/fa'
 
 export default function Home() {
   const [bio, setBio] = useState(null)
@@ -19,6 +20,7 @@ export default function Home() {
   const EVENTS_PER_PAGE = 4
   const navigate = useNavigate()
   const bioRef = useRef(null)
+  const { user } = useContext(UserContext)
 
   useEffect(() => {
     async function fetchData() {
@@ -41,16 +43,16 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const handleScroll = () => setScrollY(window.scrollY)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   useEffect(() => {
-  if (bioRef.current) {
-    setBioHeight(bioRef.current.scrollHeight);
-  }
-}, [bio, showFullBio])
+    if (bioRef.current) {
+      setBioHeight(bioRef.current.scrollHeight)
+    }
+  }, [bio, showFullBio])
 
   function handlePrev() {
     setStartIndex(prev => Math.max(prev - 1, 0))
@@ -107,8 +109,8 @@ export default function Home() {
           alt="Marcus Swietlicki"
           className="absolute inset-0 w-full h-full object-cover object-center block"
           style={{
-            transform: `translateY(${scrollY * 0.2}px)`, // moves slower than scroll
-            transition: 'transform 0.1s linear',          // smooth movement
+            transform: `translateY(${scrollY * 0.2}px)`,
+            transition: 'transform 0.1s linear',
           }}
         />
 
@@ -148,6 +150,7 @@ export default function Home() {
             </a>
           </div>
         </div>
+
         {/* Subtle Wave Transition */}
         <div className="absolute bottom-0 w-full overflow-hidden leading-none">
           <svg
@@ -174,16 +177,11 @@ export default function Home() {
                 ref={bioRef}
                 className="prose prose-lg max-w-none mb-4 text-gray-700 leading-relaxed overflow-hidden transition-all duration-500 ease-in-out"
                 style={{ maxHeight: showFullBio ? `${bioHeight}px` : '150px' }}
-                dangerouslySetInnerHTML={{
-                  __html: bio.bio
-                }}
+                dangerouslySetInnerHTML={{ __html: bio.bio }}
               />
               {bio.bio.includes('selected recordings, and latest press quotes below.') && (
                 <button
-                  onClick={() => {
-                    setShowFullBio(prev => !prev);
-                    // triggers animation both ways
-                  }}
+                  onClick={() => setShowFullBio(prev => !prev)}
                   className="mt-2 mb-6 px-6 py-2 bg-[#C4A77D] text-white rounded hover:bg-[#B59770] transition-colors font-body"
                 >
                   {showFullBio ? 'Read Less' : 'Read More'}
@@ -207,81 +205,94 @@ export default function Home() {
 
         {/* Upcoming Events */}
         <section className="px-4 md:px-10 pb-10">
-          <h2 className="text-2xl font-bold mb-6 text-center font-serif text-gray-800">Upcoming Events</h2>
           {events.length === 0 ? (
-            <p className="text-gray-600 text-center">No upcoming events.</p>
+            <p className="text-gray-600 text-center">No upcoming events</p>
           ) : (
-            <div className="flex items-center gap-2 max-w-5xl mx-auto">
+            <div className="flex items-center gap-2 max-w-full mx-auto overflow-visible">
               {/* Prev Button */}
-              <button
-                onClick={handlePrev}
-                disabled={startIndex === 0}
-                className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
-              >
-                ←
-              </button>
+              {events.length > EVENTS_PER_PAGE && (
+                <button
+                  onClick={handlePrev}
+                  disabled={startIndex === 0}
+                  className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                >
+                  ←
+                </button>
+              )}
 
               {/* Carousel Events */}
-              <div className="flex overflow-hidden flex-1 justify-between gap-3">
+              <div
+                className={`flex flex-1 gap-4 overflow-visible ${visibleEvents.length < EVENTS_PER_PAGE ? 'justify-center' : 'justify-between'
+                  }`}
+              >
                 {visibleEvents.map(event => (
                   <div
                     key={event.id}
-                    className="border border-gray-300 rounded-lg overflow-hidden text-center flex-1 relative"
+                    className="flex-shrink-0 w-[calc((100%-3*1rem)/4)] relative"
                   >
-                    <a
-                      href={event.event_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="no-underline block relative"
-                    >
-                      <img
-                        src={event.image}
-                        alt={event.title}
-                        className="w-full h-48 object-cover"
-                      />
-                      {/* Text Overlay on Image */}
-                      <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-3">
-                        <h3 className="text-sm font-serif font-semibold">{event.title}</h3>
-                        <p className="text-xs font-body">
-                          {new Date(event.datetime).toLocaleString(undefined, {
-                            dateStyle: 'medium',
-                            timeStyle: 'short',
-                          })}
-                        </p>
-                        <p className="text-xs font-body">{event.location}</p>
+                    {/* Outer wrapper handles hover scale and shadow */}
+                    <div className="overflow-visible transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl rounded-lg">
+                      {/* Inner card with border and rounded corners */}
+                      <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
+                        <a
+                          href={event.event_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block relative no-underline"
+                        >
+                          <img
+                            src={event.image}
+                            alt={event.title}
+                            className="w-full h-72 md:h-80 object-cover"
+                          />
+                          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+                            <h3 className="text-base md:text-lg font-serif font-semibold">{event.title}</h3>
+                            <p className="text-sm md:text-base font-body">
+                              {new Date(event.datetime).toLocaleString(undefined, {
+                                dateStyle: 'medium',
+                                timeStyle: 'short',
+                              })}
+                            </p>
+                            <p className="text-sm md:text-base font-body">{event.location}</p>
+                          </div>
+                        </a>
+
+                        {user && (
+                          <>
+                            <button
+                              onClick={() => handleDelete(event.id)}
+                              disabled={deletingId === event.id}
+                              className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 disabled:opacity-50 transition-colors z-10"
+                              aria-label={`Delete ${event.title}`}
+                            >
+                              {deletingId === event.id ? 'Deleting...' : 'Delete'}
+                            </button>
+
+                            <button
+                              onClick={() => handleUpdate(event.id)}
+                              className="absolute top-11 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors z-10"
+                              aria-label={`Update ${event.title}`}
+                            >
+                              Update
+                            </button>
+                          </>
+                        )}
                       </div>
-                    </a>
-
-                    {/* Delete Button */}
-                    <button
-                      onClick={() => handleDelete(event.id)}
-                      disabled={deletingId === event.id}
-                      className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 disabled:opacity-50 transition-colors z-10"
-                      aria-label={`Delete ${event.title}`}
-                    >
-                      {deletingId === event.id ? 'Deleting...' : 'Delete'}
-                    </button>
-
-                    {/* Update Button */}
-                    <button
-                      onClick={() => handleUpdate(event.id)}
-                      className="absolute top-11 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors z-10"
-                      aria-label={`Update ${event.title}`}
-                    >
-                      Update
-                    </button>
+                    </div>
                   </div>
                 ))}
               </div>
 
               {/* Next Button */}
-              <button
-                onClick={handleNext}
-                disabled={startIndex + EVENTS_PER_PAGE >= events.length}
-                className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
-              >
-                →
-              </button>
+              {events.length > EVENTS_PER_PAGE && (
+                <button
+                  onClick={handleNext}
+                  disabled={startIndex + EVENTS_PER_PAGE >= events.length}
+                  className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                >
+                  →
+                </button>
+              )}
             </div>
           )}
         </section>

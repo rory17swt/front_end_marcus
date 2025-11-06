@@ -55,7 +55,7 @@ export default function Footer() {
       <div className="text-right text-xs leading-relaxed text-gray-800">
         <p className="m-0">MARCUS SWIETLICKI © 2025. ALL RIGHTS RESERVED.</p>
         <p className="m-0">PHOTOGRAPHY BY [PHOTOGRAPHER NAME].</p>
-        <p className="m-0">WEBSITE CREATED BY RORY SWIETLICKI.</p>
+        <p className="m-0">WEBSITE CREATED BY RORY'S DEVELOPMENT STUDIOS.</p>
       </div>
     </footer>
   )
