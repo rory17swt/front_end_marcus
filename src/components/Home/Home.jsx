@@ -13,6 +13,7 @@ export default function Home() {
   const [startIndex, setStartIndex] = useState(0)
   const [deletingId, setDeletingId] = useState(null)
   const [showFullBio, setShowFullBio] = useState(false)
+  const [scrollY, setScrollY] = useState(0)
 
   const EVENTS_PER_PAGE = 4
   const navigate = useNavigate()
@@ -35,6 +36,12 @@ export default function Home() {
       }
     }
     fetchData()
+  }, [])
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [])
 
   function handlePrev() {
@@ -91,6 +98,10 @@ export default function Home() {
           src="/Home page.jpg"
           alt="Marcus Swietlicki"
           className="absolute inset-0 w-full h-full object-cover object-center block"
+          style={{
+            transform: `translateY(${scrollY * 0.2}px)`, // moves slower than scroll
+            transition: 'transform 0.1s linear',          // smooth movement
+          }}
         />
 
         {/* Top Overlay */}
@@ -129,13 +140,26 @@ export default function Home() {
             </a>
           </div>
         </div>
+        {/* Subtle Wave Transition */}
+        <div className="absolute bottom-0 w-full overflow-hidden leading-none">
+          <svg
+            className="w-full h-6 md:h-8"
+            viewBox="0 0 1440 80"
+            preserveAspectRatio="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0,0 C360,40 1080,40 1440,0 L1440,80 L0,80 Z"
+              fill="#E8DCC8"
+            />
+          </svg>
+        </div>
       </section>
 
       {/* ✅ Main White Content Box */}
       <div className="w-full max-w-[calc(100%-6rem)] mx-auto bg-white shadow-lg pb-0">
         {/* Biography Section */}
         <section className="px-4 md:px-10 mb-10 font-body">
-          <h1 className="text-3xl font-serif font-bold mb-4 text-gray-800">Biography</h1>
           {bio?.bio && (
             <>
               <div
@@ -248,9 +272,6 @@ export default function Home() {
             </div>
           )}
         </section>
-
-        {/* Gradient Transition to Footer */}
-        <div className="h-16 bg-gradient-to-b from-white to-[#E8DCC8]"></div>
       </div>
     </div>
   )
