@@ -16,6 +16,7 @@ export default function Home() {
   const [showFullBio, setShowFullBio] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [bioHeight, setBioHeight] = useState(0)
+  const [slideDirection, setSlideDirection] = useState(null) // 'next' | 'prev' | null
 
   const EVENTS_PER_PAGE = 4
   const navigate = useNavigate()
@@ -54,11 +55,23 @@ export default function Home() {
     }
   }, [bio, showFullBio])
 
+  // Reset slideDirection after animation
+  useEffect(() => {
+    if (slideDirection) {
+      const timeout = setTimeout(() => setSlideDirection(null), 500)
+      return () => clearTimeout(timeout)
+    }
+  }, [slideDirection])
+
   function handlePrev() {
+    if (startIndex === 0) return
+    setSlideDirection('prev')
     setStartIndex(prev => Math.max(prev - 1, 0))
   }
 
   function handleNext() {
+    if (startIndex + EVENTS_PER_PAGE >= events.length) return
+    setSlideDirection('next')
     setStartIndex(prev => Math.min(prev + 1, events.length - EVENTS_PER_PAGE))
   }
 
@@ -95,8 +108,6 @@ export default function Home() {
     return bioHTML.substring(0, splitIndex + splitText.length)
   }
 
-  const visibleEvents = events.slice(startIndex, startIndex + EVENTS_PER_PAGE)
-
   if (loading) return <Spinner />
   if (error) return <p className="text-red-600">{error}</p>
 
@@ -116,7 +127,6 @@ export default function Home() {
 
         {/* Top Overlay */}
         <div className="absolute top-0 left-0 right-0 flex justify-between items-start p-6 md:p-10">
-          {/* Name on Top Left */}
           <div className="text-white drop-shadow-[2px_2px_6px_rgba(0,0,0,0.7)] leading-tight">
             <h1 className="text-5xl md:text-6xl font-signature leading-none">
               Marcus <span className="relative inline-block">
@@ -128,7 +138,6 @@ export default function Home() {
             </h1>
           </div>
 
-          {/* Social Icons on Top Right */}
           <div className="flex gap-6">
             <a
               href="https://www.instagram.com/marcusswietlicki_tenor/?hl=en"
@@ -151,7 +160,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Subtle Wave Transition */}
         <div className="absolute bottom-0 w-full overflow-hidden leading-none">
           <svg
             className="w-full h-6 md:h-10"
@@ -220,67 +228,69 @@ export default function Home() {
                 </button>
               )}
 
-              {/* Carousel Events */}
-              <div
-                className={`flex flex-1 gap-4 overflow-visible ${visibleEvents.length < EVENTS_PER_PAGE ? 'justify-center' : 'justify-between'
-                  }`}
-              >
-                {visibleEvents.map(event => (
-                  <div
-                    key={event.id}
-                    className="flex-shrink-0 w-[calc((100%-3*1rem)/4)] relative"
-                  >
-                    {/* Outer wrapper handles hover scale and shadow */}
-                    <div className="overflow-visible transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl rounded-lg">
-                      {/* Inner card with border and rounded corners */}
-                      <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
-                        <a
-                          href={event.event_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block relative no-underline"
-                        >
-                          <img
-                            src={event.image}
-                            alt={event.title}
-                            className="w-full h-72 md:h-80 object-cover"
-                          />
-                          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
-                            <h3 className="text-base md:text-lg font-serif font-semibold">{event.title}</h3>
-                            <p className="text-sm md:text-base font-body">
-                              {new Date(event.datetime).toLocaleString(undefined, {
-                                dateStyle: 'medium',
-                                timeStyle: 'short',
-                              })}
-                            </p>
-                            <p className="text-sm md:text-base font-body">{event.location}</p>
-                          </div>
-                        </a>
+              {/* Carousel Container */}
+              <div className="relative overflow-hidden flex-1">
+                <div
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{
+                    transform: `translateX(-${startIndex * (100 / EVENTS_PER_PAGE)}%)`,
+                  }}
+                >
+                  {events.map(event => (
+                    <div
+                      key={event.id}
+                      className="flex-shrink-0 w-[calc((100%-3*1rem)/4)] px-2"
+                    >
+                      <div className="overflow-visible transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl rounded-lg">
+                        <div className="border border-gray-300 rounded-lg overflow-hidden bg-white relative">
+                          <a
+                            href={event.event_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block relative no-underline"
+                          >
+                            <img
+                              src={event.image}
+                              alt={event.title}
+                              className="w-full h-72 md:h-80 object-cover"
+                            />
+                            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
+                              <h3 className="text-base md:text-lg font-serif font-semibold">{event.title}</h3>
+                              <p className="text-sm md:text-base font-body">
+                                {new Date(event.datetime).toLocaleString(undefined, {
+                                  dateStyle: 'medium',
+                                  timeStyle: 'short',
+                                })}
+                              </p>
+                              <p className="text-sm md:text-base font-body">{event.location}</p>
+                            </div>
+                          </a>
 
-                        {user && (
-                          <>
-                            <button
-                              onClick={() => handleDelete(event.id)}
-                              disabled={deletingId === event.id}
-                              className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 disabled:opacity-50 transition-colors z-10"
-                              aria-label={`Delete ${event.title}`}
-                            >
-                              {deletingId === event.id ? 'Deleting...' : 'Delete'}
-                            </button>
+                          {user && (
+                            <>
+                              <button
+                                onClick={() => handleDelete(event.id)}
+                                disabled={deletingId === event.id}
+                                className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 disabled:opacity-50 transition-colors z-10"
+                                aria-label={`Delete ${event.title}`}
+                              >
+                                {deletingId === event.id ? 'Deleting...' : 'Delete'}
+                              </button>
 
-                            <button
-                              onClick={() => handleUpdate(event.id)}
-                              className="absolute top-11 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors z-10"
-                              aria-label={`Update ${event.title}`}
-                            >
-                              Update
-                            </button>
-                          </>
-                        )}
+                              <button
+                                onClick={() => handleUpdate(event.id)}
+                                className="absolute top-11 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors z-10"
+                                aria-label={`Update ${event.title}`}
+                              >
+                                Update
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
 
               {/* Next Button */}
