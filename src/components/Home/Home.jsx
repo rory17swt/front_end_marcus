@@ -241,51 +241,54 @@ export default function Home() {
                       key={event.id}
                       className="flex-shrink-0 w-[calc((100%-3*1rem)/4)] px-2"
                     >
-                      <div className="overflow-visible transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl rounded-lg">
-                        <div className="border border-gray-300 rounded-lg overflow-hidden bg-white relative">
-                          <a
-                            href={event.event_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block relative no-underline"
-                          >
-                            <img
-                              src={event.image}
-                              alt={event.title}
-                              className="w-full h-72 md:h-80 object-cover"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
-                              <h3 className="text-base md:text-lg font-serif font-semibold">{event.title}</h3>
-                              <p className="text-sm md:text-base font-body">
-                                {new Date(event.datetime).toLocaleString(undefined, {
-                                  dateStyle: 'medium',
-                                  timeStyle: 'short',
-                                })}
-                              </p>
-                              <p className="text-sm md:text-base font-body">{event.location}</p>
-                            </div>
-                          </a>
+                      {/* Outer wrapper prevents clipping */}
+                      <div className="relative">
+                        <div className="transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl rounded-lg">
+                          <div className="border border-gray-300 rounded-lg bg-white relative overflow-visible">
+                            <a
+                              href={event.event_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block relative no-underline"
+                            >
+                              <img
+                                src={event.image}
+                                alt={event.title}
+                                className="w-full h-72 md:h-80 object-cover rounded-t-lg"
+                              />
+                              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4 rounded-b-lg">
+                                <h3 className="text-base md:text-lg font-serif font-semibold">{event.title}</h3>
+                                <p className="text-sm md:text-base font-body">
+                                  {new Date(event.datetime).toLocaleString(undefined, {
+                                    dateStyle: 'medium',
+                                    timeStyle: 'short',
+                                  })}
+                                </p>
+                                <p className="text-sm md:text-base font-body">{event.location}</p>
+                              </div>
+                            </a>
 
-                          {user && (
-                            <>
-                              <button
-                                onClick={() => handleDelete(event.id)}
-                                disabled={deletingId === event.id}
-                                className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 disabled:opacity-50 transition-colors z-10"
-                                aria-label={`Delete ${event.title}`}
-                              >
-                                {deletingId === event.id ? 'Deleting...' : 'Delete'}
-                              </button>
+                            {user && (
+                              <>
+                                <button
+                                  onClick={() => handleDelete(event.id)}
+                                  disabled={deletingId === event.id}
+                                  className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 disabled:opacity-50 transition-colors z-10"
+                                  aria-label={`Delete ${event.title}`}
+                                >
+                                  {deletingId === event.id ? 'Deleting...' : 'Delete'}
+                                </button>
 
-                              <button
-                                onClick={() => handleUpdate(event.id)}
-                                className="absolute top-11 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors z-10"
-                                aria-label={`Update ${event.title}`}
-                              >
-                                Update
-                              </button>
-                            </>
-                          )}
+                                <button
+                                  onClick={() => handleUpdate(event.id)}
+                                  className="absolute top-11 right-2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors z-10"
+                                  aria-label={`Update ${event.title}`}
+                                >
+                                  Update
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
