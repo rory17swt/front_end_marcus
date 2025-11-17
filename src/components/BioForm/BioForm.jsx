@@ -27,14 +27,10 @@ const LineHeight = Extension.create({
         attributes: {
           lineHeight: {
             default: null,
-            parseHTML: element => element.style.lineHeight || null,
-            renderHTML: attributes => {
-              if (!attributes.lineHeight) {
-                return {}
-              }
-              return {
-                style: `line-height: ${attributes.lineHeight}`,
-              }
+            parseHTML: (element) => element.style.lineHeight || null,
+            renderHTML: (attributes) => {
+              if (!attributes.lineHeight) return {}
+              return { style: `line-height: ${attributes.lineHeight}` }
             },
           },
         },
@@ -44,16 +40,18 @@ const LineHeight = Extension.create({
 
   addCommands() {
     return {
-      setLineHeight: (lineHeight) => ({ commands }) => {
-        return this.options.types.every((type) =>
-          commands.updateAttributes(type, { lineHeight })
-        )
-      },
-      unsetLineHeight: () => ({ commands }) => {
-        return this.options.types.every((type) =>
-          commands.resetAttributes(type, 'lineHeight')
-        )
-      },
+      setLineHeight:
+        (lineHeight) =>
+          ({ commands }) =>
+            this.options.types.every((t) =>
+              commands.updateAttributes(t, { lineHeight }),
+            ),
+      unsetLineHeight:
+        () =>
+          ({ commands }) =>
+            this.options.types.every((t) =>
+              commands.resetAttributes(t, 'lineHeight'),
+            ),
     }
   },
 })
@@ -85,9 +83,7 @@ export default function BioForm() {
     async function fetchBio() {
       try {
         const res = await getAuthBio()
-        if (res.data.bio) {
-          editor.commands.setContent(res.data.bio)
-        }
+        if (res.data.bio) editor.commands.setContent(res.data.bio)
       } catch (err) {
         setError('Failed to load bio')
       } finally {
@@ -97,28 +93,6 @@ export default function BioForm() {
 
     fetchBio()
   }, [editor])
-
-  // Text formatting
-  const toggleBold = () => editor.chain().focus().toggleBold().run()
-  const toggleItalic = () => editor.chain().focus().toggleItalic().run()
-  const toggleUnderline = () => editor.chain().focus().toggleUnderline().run()
-  
-  // Lists
-  const toggleBulletList = () => editor.chain().focus().toggleBulletList().run()
-  const toggleOrderedList = () => editor.chain().focus().toggleOrderedList().run()
-  
-  // Headings
-  const setHeading = (level) => editor.chain().focus().toggleHeading({ level }).run()
-  const setParagraph = () => editor.chain().focus().setParagraph().run()
-  
-  // Alignment
-  const setAlignment = (align) => editor.chain().focus().setTextAlign(align).run()
-  
-  // Line Height
-  const setLineHeight = (height) => editor.chain().focus().setLineHeight(height).run()
-  
-  // Other
-  const setBlockquote = () => editor.chain().focus().toggleBlockquote().run()
 
   const handleCvChange = (e) => {
     setCvFile(e.target.files[0])
@@ -138,7 +112,6 @@ export default function BioForm() {
       }
 
       await updateBio(formData)
-
       setCvFile(null)
       navigate('/')
     } catch (err) {
@@ -151,77 +124,113 @@ export default function BioForm() {
   if (loading) return <Spinner />
 
   return (
-    <div>
-      <h2>Edit Your Bio</h2>
+    <div className="min-h-screen bg-[#E8DCC8] flex justify-center px-4 py-10">
+      <div className="w-full max-w-3xl bg-white shadow-lg rounded-lg p-8 md:p-10">
 
-      {/* Toolbar */}
-      <div style={{ marginBottom: '10px', display: 'flex', flexWrap: 'wrap', gap: '5px', padding: '10px', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
-        
-        {/* Text Formatting */}
-        <div style={{ display: 'flex', gap: '5px', borderRight: '1px solid #ccc', paddingRight: '10px' }}>
-          <button type="button" onClick={toggleBold} title="Bold"><b>B</b></button>
-          <button type="button" onClick={toggleItalic} title="Italic"><i>I</i></button>
-          <button type="button" onClick={toggleUnderline} title="Underline"><u>U</u></button>
+        <h2 className="text-3xl md:text-4xl font-serif text-gray-800 mb-8 text-center">
+          Edit Your Biography
+        </h2>
+
+        {/* Toolbar */}
+        <div className="flex flex-wrap gap-2 p-4 mb-6 bg-gray-100 rounded-lg border border-gray-300">
+
+          {/* Group Style */}
+          {[
+            {
+              label: "Formatting",
+              buttons: [
+                { action: () => editor.chain().focus().toggleBold().run(), label: <b>B</b> },
+                { action: () => editor.chain().focus().toggleItalic().run(), label: <i>I</i> },
+                { action: () => editor.chain().focus().toggleUnderline().run(), label: <u>U</u> },
+              ],
+            },
+            {
+              label: "Headings",
+              buttons: [
+                { action: () => editor.chain().focus().toggleHeading({ level: 1 }).run(), label: "H1" },
+                { action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(), label: "H2" },
+                { action: () => editor.chain().focus().toggleHeading({ level: 3 }).run(), label: "H3" },
+                { action: () => editor.chain().focus().setParagraph().run(), label: "P" },
+              ],
+            },
+            {
+              label: "Lists",
+              buttons: [
+                { action: () => editor.chain().focus().toggleBulletList().run(), label: "• List" },
+                { action: () => editor.chain().focus().toggleOrderedList().run(), label: "1. List" },
+              ],
+            },
+            {
+              label: "Align",
+              buttons: [
+                { action: () => editor.chain().focus().setTextAlign("left").run(), label: "⬅" },
+                { action: () => editor.chain().focus().setTextAlign("center").run(), label: "⬌" },
+                { action: () => editor.chain().focus().setTextAlign("right").run(), label: "➡" },
+                { action: () => editor.chain().focus().setTextAlign("justify").run(), label: "≋" },
+              ],
+            },
+            {
+              label: "Line Height",
+              buttons: [
+                { action: () => editor.chain().focus().setLineHeight("1.0").run(), label: "1.0" },
+                { action: () => editor.chain().focus().setLineHeight("1.5").run(), label: "1.5" },
+                { action: () => editor.chain().focus().setLineHeight("2.0").run(), label: "2.0" },
+              ],
+            },
+            {
+              label: "Other",
+              buttons: [
+                { action: () => editor.chain().focus().toggleBlockquote().run(), label: '"' },
+              ],
+            },
+          ].map((group, i) => (
+            <div key={i} className="flex gap-2 pr-3 border-r last:border-r-0 border-gray-300">
+              {group.buttons.map((btn, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={btn.action}
+                  className="px-3 py-1 bg-white border border-gray-300 rounded-md hover:bg-gray-200 transition text-sm"
+                >
+                  {btn.label}
+                </button>
+              ))}
+            </div>
+          ))}
         </div>
 
-        {/* Headings */}
-        <div style={{ display: 'flex', gap: '5px', borderRight: '1px solid #ccc', paddingRight: '10px' }}>
-          <button type="button" onClick={() => setHeading(1)} title="Heading 1">H1</button>
-          <button type="button" onClick={() => setHeading(2)} title="Heading 2">H2</button>
-          <button type="button" onClick={() => setHeading(3)} title="Heading 3">H3</button>
-          <button type="button" onClick={setParagraph} title="Paragraph">P</button>
-        </div>
-
-        {/* Lists */}
-        <div style={{ display: 'flex', gap: '5px', borderRight: '1px solid #ccc', paddingRight: '10px' }}>
-          <button type="button" onClick={toggleBulletList} title="Bullet List">• List</button>
-          <button type="button" onClick={toggleOrderedList} title="Numbered List">1. List</button>
-        </div>
-
-        {/* Alignment */}
-        <div style={{ display: 'flex', gap: '5px', borderRight: '1px solid #ccc', paddingRight: '10px' }}>
-          <button type="button" onClick={() => setAlignment('left')} title="Align Left">⬅</button>
-          <button type="button" onClick={() => setAlignment('center')} title="Align Center">⬌</button>
-          <button type="button" onClick={() => setAlignment('right')} title="Align Right">➡</button>
-          <button type="button" onClick={() => setAlignment('justify')} title="Justify">⬌⬌</button>
-        </div>
-
-        {/* Line Height */}
-        <div style={{ display: 'flex', gap: '5px', borderRight: '1px solid #ccc', paddingRight: '10px' }}>
-          <button type="button" onClick={() => setLineHeight('1.0')} title="Line Height 1.0">1.0</button>
-          <button type="button" onClick={() => setLineHeight('1.5')} title="Line Height 1.5">1.5</button>
-          <button type="button" onClick={() => setLineHeight('2.0')} title="Line Height 2.0">2.0</button>
-        </div>
-
-        {/* Other */}
-        <div style={{ display: 'flex', gap: '5px' }}>
-          <button type="button" onClick={setBlockquote} title="Blockquote">"</button>
-        </div>
-      </div>
-
-      {/* Editor */}
-      <EditorContent
-        editor={editor}
-        style={{ border: '1px solid #ccc', minHeight: 300, padding: 10, backgroundColor: 'white', color: 'black' }}
-      />
-
-      {/* CV Upload */}
-      <div style={{ marginTop: '1rem' }}>
-        <label htmlFor="cv-upload">Upload New CV (PDF): </label>
-        <input
-          type="file"
-          id="cv-upload"
-          accept=".pdf"
-          onChange={handleCvChange}
+        {/* Editor */}
+        <EditorContent
+          editor={editor}
+          className="border border-gray-300 rounded-md bg-white p-4 min-h-[300px] focus:outline-none"
         />
+
+        {/* CV Upload */}
+        <div className="mt-6">
+          <label htmlFor="cv-upload" className="font-medium text-gray-700">
+            Upload New CV (PDF):
+          </label>
+          <input
+            type="file"
+            id="cv-upload"
+            accept=".pdf"
+            onChange={handleCvChange}
+            className="block mt-2"
+          />
+        </div>
+
+        {error && <p className="text-red-600 mt-4">{error}</p>}
+
+        {/* Save */}
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="mt-8 w-full bg-[#C4A77D] text-white py-2 rounded-md hover:bg-[#B59770] transition disabled:opacity-60"
+        >
+          {isSaving ? "Updating..." : "Update Bio"}
+        </button>
+
       </div>
-
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-
-      {/* Save Button */}
-      <button onClick={handleSave} disabled={isSaving} style={{ marginTop: '1rem' }}>
-        {isSaving ? 'Updating...' : 'Update Bio'}
-      </button>
     </div>
   )
 }
