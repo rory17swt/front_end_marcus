@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react"
-import { submitContactForm } from "../../services/contact"
-import Spinner from '../Spinner/Spinner'
-import { getCSRF } from "../../services/contact"
+import { useState, useEffect } from "react";
+import { submitContactForm } from "../../services/contact";
+import Spinner from '../Spinner/Spinner';
+import { getCSRF } from "../../services/contact";
 
 export default function Contact() {
     const [formData, setFormData] = useState({
@@ -10,179 +10,164 @@ export default function Contact() {
         email: '',
         subject: '',
         message: ''
-    })
+    });
 
-    const [error, setError] = useState({})
-    const [isLoading, setIsLoading] = useState(false)
-    const [showSuccessPopup, setShowSuccessPopup] = useState(false)
-    const [showFailedPopup, setShowFailedPopup] = useState(false)
+    const [error, setError] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
+    const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+    const [showFailedPopup, setShowFailedPopup] = useState(false);
 
     useEffect(() => {
-        getCSRF()
-    }, [])
+        getCSRF();
+    }, []);
 
     function handleChange({ target: { name, value } }) {
-        setFormData({ ...formData, [name]: value })
+        setFormData({ ...formData, [name]: value });
     }
 
     async function handleSubmit(event) {
-        event.preventDefault()
-        setIsLoading(true)
-        setError({})
-        setShowSuccessPopup(false)
-        setShowFailedPopup(false)
+        event.preventDefault();
+        setIsLoading(true);
+        setError({});
+        setShowSuccessPopup(false);
+        setShowFailedPopup(false);
 
-        const encodedData = new URLSearchParams(formData)
+        const encodedData = new URLSearchParams(formData);
 
         try {
-            await submitContactForm(encodedData)
-            setShowSuccessPopup(true)
+            await submitContactForm(encodedData);
+            setShowSuccessPopup(true);
             setFormData({
                 first_name: '',
                 last_name: '',
                 email: '',
                 subject: '',
                 message: ''
-            })
+            });
         } catch (error) {
-            setShowFailedPopup(true)
-            setError(error.response?.data || { form: 'An error occurred. Please try again.' })
+            setShowFailedPopup(true);
+            setError(error.response?.data || { form: 'An error occurred. Please try again.' });
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
     }
 
     return (
-        <div>
-            {/* Cover Photo */}
-            <section style={{ marginBottom: '40px' }}>
-                <img 
-                    src="/Contact page.jpg" 
-                    alt="Contact" 
-                    style={{ 
-                        width: '100%', 
-                        height: 'auto',
-                        display: 'block'
-                    }} 
-                />
-            </section>
+        <div className="w-full bg-gray-50 flex flex-col items-center py-12">
+            {/* Form Section */}
+            <section className="flex flex-col lg:flex-row w-full max-w-6xl px-6 lg:px-0 gap-10">
+                {/* Left Image */}
+                <div className="lg:w-1/2">
+                    <img
+                        src="/Contact page.jpg"
+                        alt="Contact Illustration"
+                        className="w-full h-full object-cover rounded-lg shadow-md"
+                    />
+                </div>
 
-            <section>
-                <form onSubmit={handleSubmit}>
-                    <h1>Contact</h1>
+                {/* Right Form */}
+                <div className="lg:w-1/2 p-8 rounded-lg">
+                    <h1 className="text-3xl font-bold mb-6 text-gray-900">Contact</h1>
 
-                    {error.form && <p>{error.form}</p>}
+                    {error.form && <p className="text-red-600 mb-4">{error.form}</p>}
 
-                    {/* First Name */}
-                    <div>
-                        <label htmlFor="first_name">First Name: </label>
-                        <input
-                            type="text"
-                            name="first_name"
-                            id="first_name"
-                            placeholder="First Name"
-                            onChange={handleChange}
-                            value={formData.first_name}
-                            required
-                        />
-                        {error.first_name && <p>{error.first_name}</p>}
-                    </div>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="flex gap-4">
+                            <div className="flex-1">
+                                <label className="block font-medium mb-1 text-gray-700" htmlFor="first_name">First Name</label>
+                                <input
+                                    type="text"
+                                    name="first_name"
+                                    id="first_name"
+                                    placeholder="First Name"
+                                    onChange={handleChange}
+                                    value={formData.first_name}
+                                    required
+                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-gold focus:outline-none"
+                                />
+                                {error.first_name && <p className="text-red-500 text-sm">{error.first_name}</p>}
+                            </div>
 
-                    {/* Last Name */}
-                    <div>
-                        <label htmlFor="last_name">Last Name: </label>
-                        <input
-                            type="text"
-                            name="last_name"
-                            id="last_name"
-                            placeholder="Last Name"
-                            onChange={handleChange}
-                            value={formData.last_name}
-                            required
-                        />
-                        {error.last_name && <p>{error.last_name}</p>}
-                    </div>
+                            <div className="flex-1">
+                                <label className="block font-medium mb-1 text-gray-700" htmlFor="last_name">Last Name</label>
+                                <input
+                                    type="text"
+                                    name="last_name"
+                                    id="last_name"
+                                    placeholder="Last Name"
+                                    onChange={handleChange}
+                                    value={formData.last_name}
+                                    required
+                                    className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-gold focus:outline-none"
+                                />
+                                {error.last_name && <p className="text-red-500 text-sm">{error.last_name}</p>}
+                            </div>
+                        </div>
 
-                    {/* Email */}
-                    <div>
-                        <label htmlFor="email">Email: </label>
-                        <input
-                            type="email"
-                            name="email"
-                            id="email"
-                            placeholder="Your Email"
-                            onChange={handleChange}
-                            value={formData.email}
-                            required
-                        />
-                        {error.email && <p>{error.email}</p>}
-                    </div>
+                        <div>
+                            <label className="block font-medium mb-1 text-gray-700" htmlFor="email">Email</label>
+                            <input
+                                type="email"
+                                name="email"
+                                id="email"
+                                placeholder="Your Email"
+                                onChange={handleChange}
+                                value={formData.email}
+                                required
+                                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-gold focus:outline-none"
+                            />
+                            {error.email && <p className="text-red-500 text-sm">{error.email}</p>}
+                        </div>
 
-                    {/* Subject */}
-                    <div>
-                        <label htmlFor="subject">Subject: </label>
-                        <input
-                            type="text"
-                            name="subject"
-                            id="subject"
-                            placeholder="Subject"
-                            onChange={handleChange}
-                            value={formData.subject}
-                            required
-                        />
-                        {error.subject && <p>{error.subject}</p>}
-                    </div>
+                        <div>
+                            <label className="block font-medium mb-1 text-gray-700" htmlFor="subject">Subject</label>
+                            <input
+                                type="text"
+                                name="subject"
+                                id="subject"
+                                placeholder="Subject"
+                                onChange={handleChange}
+                                value={formData.subject}
+                                required
+                                className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-gold focus:outline-none"
+                            />
+                            {error.subject && <p className="text-red-500 text-sm">{error.subject}</p>}
+                        </div>
 
-                    {/* Message */}
-                    <div>
-                        <label htmlFor="message">Message: </label>
-                        <textarea
-                            name="message"
-                            id="message"
-                            placeholder="Your message..."
-                            onChange={handleChange}
-                            value={formData.message}
-                            required
-                        />
-                        {error.message && <p>{error.message}</p>}
-                    </div>
+                        <div>
+                            <label className="block font-medium mb-1 text-gray-700" htmlFor="message">Message</label>
+                            <textarea
+                                name="message"
+                                id="message"
+                                placeholder="Your message..."
+                                onChange={handleChange}
+                                value={formData.message}
+                                required
+                                className="w-full border border-gray-300 rounded-md p-2 h-32 focus:ring-2 focus:ring-gold focus:outline-none resize-none"
+                            />
+                            {error.message && <p className="text-red-500 text-sm">{error.message}</p>}
+                        </div>
 
-                    {/* Submit Button */}
-                    <button>
-                        {isLoading ? <Spinner /> : 'Send Message'}
-                    </button>
-                </form>
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full bg-[#C4A77D] text-white py-2 rounded-md hover:bg-[#B59770] transition-colors font-medium disabled:opacity-60"
+                        >
+                            {isLoading ? <Spinner loading={isLoading} /> : 'Send Message'}
+                        </button>
+                    </form>
+                </div>
             </section>
 
             {/* Success Popup */}
             {showSuccessPopup && (
-                <div style={{
-                    position: 'fixed',
-                    top: '40%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    backgroundColor: '#d4edda',
-                    border: '1px solid #c3e6cb',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                    zIndex: 1000,
-                    maxWidth: '90%',
-                    textAlign: 'center'
-                }}>
-                    <p style={{ margin: '0 0 10px 0', color: '#155724', fontWeight: 'bold' }}>
-                        Thanks for reaching out! Your message has been sent to Marcus, and he'll get back to you as soon as possible.
+                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-100 border border-green-400 p-6 rounded-lg shadow-lg z-50 max-w-sm text-center">
+                    <p className="text-green-800 font-semibold mb-4">
+                        Thanks for reaching out! Your message has been sent and Marcus will get back to you soon.
                     </p>
                     <button
                         onClick={() => setShowSuccessPopup(false)}
-                        style={{
-                            backgroundColor: '#155724',
-                            color: 'white',
-                            border: 'none',
-                            padding: '8px 16px',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                        }}
+                        className="bg-green-800 text-white px-4 py-2 rounded-md hover:bg-green-900"
                     >
                         Close
                     </button>
@@ -191,39 +176,18 @@ export default function Contact() {
 
             {/* Failed Popup */}
             {showFailedPopup && (
-                <div style={{
-                    position: 'fixed',
-                    top: '40%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    backgroundColor: '#f8d7da',
-                    border: '1px solid #f5c6cb',
-                    padding: '20px',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                    zIndex: 1000,
-                    maxWidth: '90%',
-                    textAlign: 'center'
-                }}>
-                    <p style={{ margin: '0 0 10px 0', color: '#721c24', fontWeight: 'bold' }}>
-                        Message Failed.<br />
-                        Something went wrong and your message couldn't be sent to Marcus. Please try again later, or contact him directly at marcus@swietlicki.eu.
+                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-100 border border-red-400 p-6 rounded-lg shadow-lg z-50 max-w-sm text-center">
+                    <p className="text-red-800 font-semibold mb-4">
+                        Message Failed. Something went wrong and your message couldn't be sent. Please try again later.
                     </p>
                     <button
                         onClick={() => setShowFailedPopup(false)}
-                        style={{
-                            backgroundColor: '#721c24',
-                            color: 'white',
-                            border: 'none',
-                            padding: '8px 16px',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                        }}
+                        className="bg-red-800 text-white px-4 py-2 rounded-md hover:bg-red-900"
                     >
                         Close
                     </button>
                 </div>
             )}
         </div>
-    )
+    );
 }
