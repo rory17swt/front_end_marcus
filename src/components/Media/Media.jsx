@@ -9,9 +9,10 @@ export default function MediaList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [imageStartIndex, setImageStartIndex] = useState(0)
-  const [fade, setFade] = useState(false) // fade animation state
+  const [nextIndex, setNextIndex] = useState(null)
+  const [fade, setFade] = useState(false)
 
-  const IMAGES_PER_PAGE = 8 // 4x2 grid
+  const IMAGES_PER_PAGE = 8
   const { user } = useContext(UserContext)
 
   useEffect(() => {
@@ -46,22 +47,28 @@ export default function MediaList() {
   }
 
   function handleImagePrev() {
+    const newIndex = Math.max(imageStartIndex - IMAGES_PER_PAGE, 0)
+    setNextIndex(newIndex)
     setFade(true)
-    setTimeout(() => {
-      setImageStartIndex(prev => Math.max(prev - IMAGES_PER_PAGE, 0))
-      setFade(false)
-    }, 200) // match CSS transition duration
   }
 
   function handleImageNext() {
+    const newIndex = Math.min(imageStartIndex + IMAGES_PER_PAGE, images.length - IMAGES_PER_PAGE)
+    setNextIndex(newIndex)
     setFade(true)
-    setTimeout(() => {
-      setImageStartIndex(prev =>
-        Math.min(prev + IMAGES_PER_PAGE, images.length - IMAGES_PER_PAGE)
-      )
-      setFade(false)
-    }, 200)
   }
+
+  // Switch images after fade completes
+  useEffect(() => {
+    if (fade && nextIndex !== null) {
+      const timeout = setTimeout(() => {
+        setImageStartIndex(nextIndex)
+        setNextIndex(null)
+        setFade(false)
+      }, 700) // match transition duration
+      return () => clearTimeout(timeout)
+    }
+  }, [fade, nextIndex])
 
   function handleDeleteSuccess(mediaId) {
     setMedia(prev => prev.filter(item => item.id !== mediaId))
@@ -69,8 +76,8 @@ export default function MediaList() {
 
   const images = media.filter(item => item.image && !item.youtube_url)
   const videos = media.filter(item => item.youtube_url)
-
   const visibleImages = images.slice(imageStartIndex, imageStartIndex + IMAGES_PER_PAGE)
+  const nextImages = nextIndex !== null ? images.slice(nextIndex, nextIndex + IMAGES_PER_PAGE) : []
 
   if (loading) return <Spinner />
   if (error) return <p className="text-red-600">{error}</p>
@@ -85,7 +92,6 @@ export default function MediaList() {
           alt="Media"
           className="w-full h-auto block object-contain"
         />
-
         <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-full text-center">
           <div
             className="absolute inset-0 mx-auto w-full h-full"
@@ -95,7 +101,6 @@ export default function MediaList() {
               zIndex: -1
             }}
           />
-
           <h1
             className="text-6xl md:text-9xl font-serif tracking-[1em] uppercase text-white drop-shadow-[4px_4px_15px_rgba(0,0,0,0.8)]"
             style={{ letterSpacing: "1em" }}
@@ -114,7 +119,6 @@ export default function MediaList() {
             <p className="text-gray-600">No images available.</p>
           ) : (
             <div className="space-y-6">
-
               {/* Carousel controls */}
               <div className="flex gap-4">
                 <button
@@ -124,7 +128,6 @@ export default function MediaList() {
                 >
                   ← Previous
                 </button>
-
                 <button
                   onClick={handleImageNext}
                   disabled={imageStartIndex + IMAGES_PER_PAGE >= images.length}
@@ -134,25 +137,45 @@ export default function MediaList() {
                 </button>
               </div>
 
-              {/* GRID with fade animation */}
-              <div
-                className={`grid grid-cols-2 md:grid-cols-4 gap-6 transition-opacity duration-200 ${fade ? 'opacity-0' : 'opacity-100'
-                  }`}
-              >
-                {visibleImages.map(item => (
-                  <div key={item.id} className="relative group">
-                    <img
-                      src={item.image}
-                      alt="Media"
-                      className="w-full h-48 object-cover rounded-md shadow-sm transition-transform duration-300 group-hover:scale-[1.03]"
-                    />
-                    {user && (
-                      <div className="absolute top-2 right-2">
-                        <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
+              {/* Image grid with crossfade */}
+              <div className="relative">
+                {/* Current images */}
+                <div className={`grid grid-cols-2 md:grid-cols-4 gap-6 transition-opacity duration-700 ${fade ? 'opacity-0' : 'opacity-100'}`}>
+                  {visibleImages.map(item => (
+                    <div key={item.id} className="relative group">
+                      <img
+                        src={item.image}
+                        alt="Media"
+                        className="w-full h-48 object-cover rounded-md shadow-sm transition-transform duration-700 group-hover:scale-[1.03]"
+                      />
+                      {user && (
+                        <div className="absolute top-2 right-2">
+                          <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Next images overlay */}
+                {fade && nextImages.length > 0 && (
+                  <div className="absolute top-0 left-0 w-full grid grid-cols-2 md:grid-cols-4 gap-6 transition-opacity duration-700 opacity-0 animate-fade-in">
+                    {nextImages.map(item => (
+                      <div key={item.id} className="relative group">
+                        <img
+                          src={item.image}
+                          alt="Media"
+                          className="w-full h-48 object-cover rounded-md shadow-sm transition-transform duration-700 group-hover:scale-[1.03]"
+                        />
+                        {user && (
+                          <div className="absolute top-2 right-2">
+                            <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
+                          </div>
+                        )}
                       </div>
-                    )}
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}
