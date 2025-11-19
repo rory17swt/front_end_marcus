@@ -1,16 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import { getAllMedia } from '../../services/media'
 import Spinner from '../Spinner/Spinner'
 import MediaDelete from '../MediaDelete/MediaDelete'
+import { UserContext } from '../../contexts/UserContext'
 
 export default function MediaList() {
   const [media, setMedia] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [imageStartIndex, setImageStartIndex] = useState(0)
+  const [fade, setFade] = useState(false) // fade animation state
 
   const IMAGES_PER_PAGE = 8 // 4x2 grid
-  const VIDEOS_PER_ROW = 3
+  const { user } = useContext(UserContext)
 
   useEffect(() => {
     async function fetchData() {
@@ -44,139 +46,144 @@ export default function MediaList() {
   }
 
   function handleImagePrev() {
-    setImageStartIndex(prev => Math.max(prev - IMAGES_PER_PAGE, 0))
+    setFade(true)
+    setTimeout(() => {
+      setImageStartIndex(prev => Math.max(prev - IMAGES_PER_PAGE, 0))
+      setFade(false)
+    }, 200) // match CSS transition duration
   }
 
   function handleImageNext() {
-    setImageStartIndex(prev => Math.min(prev + IMAGES_PER_PAGE, images.length - IMAGES_PER_PAGE))
+    setFade(true)
+    setTimeout(() => {
+      setImageStartIndex(prev =>
+        Math.min(prev + IMAGES_PER_PAGE, images.length - IMAGES_PER_PAGE)
+      )
+      setFade(false)
+    }, 200)
   }
 
   function handleDeleteSuccess(mediaId) {
-    setMedia(prevMedia => prevMedia.filter(item => item.id !== mediaId))
+    setMedia(prev => prev.filter(item => item.id !== mediaId))
   }
 
-  // Separate images and videos
   const images = media.filter(item => item.image && !item.youtube_url)
   const videos = media.filter(item => item.youtube_url)
 
   const visibleImages = images.slice(imageStartIndex, imageStartIndex + IMAGES_PER_PAGE)
 
   if (loading) return <Spinner />
-  if (error) return <p>{error}</p>
+  if (error) return <p className="text-red-600">{error}</p>
 
   return (
-    <div>
-      {/* Cover Photo */}
-      <section style={{ marginBottom: '40px' }}>
-        <img 
-          src="/Media Front Photo.jpg" 
-          alt="Media" 
-          style={{ 
-            width: '100%', 
-            height: 'auto',
-            display: 'block'
-          }} 
+    <div className="min-h-screen bg-[#E8DCC8] pt-0 pb-20">
+
+      {/* COVER PHOTO */}
+      <section className="relative w-full overflow-hidden mb-12">
+        <img
+          src="/Media Front Photo.jpg"
+          alt="Media"
+          className="w-full h-auto block object-contain"
         />
+
+        <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-full text-center">
+          <div
+            className="absolute inset-0 mx-auto w-full h-full"
+            style={{
+              background: "radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 70%)",
+              filter: "blur(80px)",
+              zIndex: -1
+            }}
+          />
+
+          <h1
+            className="text-6xl md:text-9xl font-serif tracking-[1em] uppercase text-white drop-shadow-[4px_4px_15px_rgba(0,0,0,0.8)]"
+            style={{ letterSpacing: "1em" }}
+          >
+            MEDIA
+          </h1>
+        </div>
       </section>
 
-      {/* Images Section */}
-      <section>
-        <h2>Images</h2>
-        {images.length === 0 ? (
-          <p>No images available.</p>
-        ) : (
-          <div>
-            {/* Carousel Controls */}
-            <div>
-              <button onClick={handleImagePrev} disabled={imageStartIndex === 0}>
-                ← Previous
-              </button>
-              <button 
-                onClick={handleImageNext} 
-                disabled={imageStartIndex + IMAGES_PER_PAGE >= images.length}
-              >
-                Next →
-              </button>
-            </div>
+      {/* MAIN CONTAINER */}
+      <div className="w-full max-w-[calc(100%-6rem)] mx-auto bg-white shadow-lg rounded-md p-6 md:p-12">
 
-            {/* 4x2 Grid */}
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(4, 1fr)', 
-              gap: '20px',
-              marginTop: '20px'
-            }}>
-              {visibleImages.map(item => (
-                <div key={item.id} style={{ position: 'relative' }}>
-                  <img 
-                    src={item.image} 
-                    alt="Media" 
-                    style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-                  />
-                  <p style={{ fontSize: '12px', marginTop: '5px' }}>
-                    {new Date(item.created_at).toLocaleString(undefined, {
-                      dateStyle: 'medium',
-                      timeStyle: 'short',
-                    })}
-                  </p>
-                  
-                  {/* Delete Button */}
-                  <div style={{
-                    position: 'absolute',
-                    top: 5,
-                    right: 5,
-                  }}>
-                    <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
+        {/* ---------------- IMAGES ---------------- */}
+        <section>
+          {images.length === 0 ? (
+            <p className="text-gray-600">No images available.</p>
+          ) : (
+            <div className="space-y-6">
+
+              {/* Carousel controls */}
+              <div className="flex gap-4">
+                <button
+                  onClick={handleImagePrev}
+                  disabled={imageStartIndex === 0}
+                  className="px-4 py-2 bg-[#C4A77D] text-white rounded-lg hover:bg-[#B59770] disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  ← Previous
+                </button>
+
+                <button
+                  onClick={handleImageNext}
+                  disabled={imageStartIndex + IMAGES_PER_PAGE >= images.length}
+                  className="px-4 py-2 bg-[#C4A77D] text-white rounded-lg hover:bg-[#B59770] disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  Next →
+                </button>
+              </div>
+
+              {/* GRID with fade animation */}
+              <div
+                className={`grid grid-cols-2 md:grid-cols-4 gap-6 transition-opacity duration-200 ${fade ? 'opacity-0' : 'opacity-100'
+                  }`}
+              >
+                {visibleImages.map(item => (
+                  <div key={item.id} className="relative group">
+                    <img
+                      src={item.image}
+                      alt="Media"
+                      className="w-full h-48 object-cover rounded-md shadow-sm transition-transform duration-300 group-hover:scale-[1.03]"
+                    />
+                    {user && (
+                      <div className="absolute top-2 right-2">
+                        <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
+                      </div>
+                    )}
                   </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* ---------------- VIDEOS ---------------- */}
+        <section className="mt-14">
+          {videos.length === 0 ? (
+            <p className="text-gray-600">No videos available.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {videos.map(item => (
+                <div key={item.id} className="relative">
+                  <iframe
+                    className="w-full h-56 rounded-md shadow-md"
+                    src={getYoutubeEmbedUrl(item.youtube_url)}
+                    title="YouTube video"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                  {user && (
+                    <div className="absolute top-2 right-2">
+                      <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
-          </div>
-        )}
-      </section>
-
-      {/* Videos Section */}
-      <section style={{ marginTop: '40px' }}>
-        <h2>Videos</h2>
-        {videos.length === 0 ? (
-          <p>No videos available.</p>
-        ) : (
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(3, 1fr)', 
-            gap: '20px'
-          }}>
-            {videos.map(item => (
-              <div key={item.id} style={{ position: 'relative' }}>
-                <iframe
-                  width="100%"
-                  height="200"
-                  src={getYoutubeEmbedUrl(item.youtube_url)}
-                  title="YouTube video"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-                <p style={{ fontSize: '12px', marginTop: '5px' }}>
-                  {new Date(item.created_at).toLocaleString(undefined, {
-                    dateStyle: 'medium',
-                    timeStyle: 'short',
-                  })}
-                </p>
-                
-                {/* Delete Button */}
-                <div style={{
-                  position: 'absolute',
-                  top: 5,
-                  right: 5,
-                }}>
-                  <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+          )}
+        </section>
+      </div>
     </div>
   )
 }

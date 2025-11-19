@@ -14,28 +14,29 @@ export default function Navbar() {
 
     return (
         <header className="bg-[#F5F1E8] shadow-md sticky top-0 z-50">
-            <nav className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-                {/* Public Links - Left Side */}
+            <nav className="w-full flex justify-between items-center px-4 py-4">
+
+                {/* Left Side */}
                 <div className="flex gap-6">
-                    <NavLink 
-                        to='/' 
-                        className={({ isActive }) => 
+                    <NavLink
+                        to='/'
+                        className={({ isActive }) =>
                             `text-gray-800 font-medium hover:text-[#C4A77D] transition-colors ${isActive ? 'text-[#C4A77D] underline' : ''}`
                         }
                     >
                         Home
                     </NavLink>
-                    <NavLink 
+                    <NavLink
                         to='/media'
-                        className={({ isActive }) => 
+                        className={({ isActive }) =>
                             `text-gray-800 font-medium hover:text-[#C4A77D] transition-colors ${isActive ? 'text-[#C4A77D] underline' : ''}`
                         }
                     >
                         Media
                     </NavLink>
-                    <NavLink 
+                    <NavLink
                         to='/contact'
-                        className={({ isActive }) => 
+                        className={({ isActive }) =>
                             `text-gray-800 font-medium hover:text-[#C4A77D] transition-colors ${isActive ? 'text-[#C4A77D] underline' : ''}`
                         }
                     >
@@ -43,35 +44,35 @@ export default function Navbar() {
                     </NavLink>
                 </div>
 
-                {/* Admin Links - Right Side */}
+                {/* Right Side */}
                 {user && (
                     <div className="flex gap-6">
-                        <NavLink 
+                        <NavLink
                             to='/bioForm'
-                            className={({ isActive }) => 
+                            className={({ isActive }) =>
                                 `text-gray-800 font-medium hover:text-[#C4A77D] transition-colors ${isActive ? 'text-[#C4A77D] underline' : ''}`
                             }
                         >
                             Bio Form
                         </NavLink>
-                        <NavLink 
+                        <NavLink
                             to='/events/create'
-                            className={({ isActive }) => 
+                            className={({ isActive }) =>
                                 `text-gray-800 font-medium hover:text-[#C4A77D] transition-colors ${isActive ? 'text-[#C4A77D] underline' : ''}`
                             }
                         >
                             Event Create
                         </NavLink>
-                        <NavLink 
+                        <NavLink
                             to='/media/create'
-                            className={({ isActive }) => 
+                            className={({ isActive }) =>
                                 `text-gray-800 font-medium hover:text-[#C4A77D] transition-colors ${isActive ? 'text-[#C4A77D] underline' : ''}`
                             }
                         >
                             Media Form
                         </NavLink>
-                        <NavLink 
-                            to='/' 
+                        <NavLink
+                            to='/'
                             onClick={signOut}
                             className="text-gray-800 font-medium hover:text-[#8B7355] transition-colors"
                         >
@@ -79,7 +80,9 @@ export default function Navbar() {
                         </NavLink>
                     </div>
                 )}
+
             </nav>
         </header>
+
     )
 }

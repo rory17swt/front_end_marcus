@@ -10,7 +10,7 @@ export default function MediaDelete({ mediaId, onDeleteSuccess }) {
   // Functions
   async function handleDelete() {
     if (!window.confirm('Are you sure you want to delete this media?')) return
-    
+
     setIsLoading(true)
     try {
       await deleteMedia(mediaId)
@@ -28,9 +28,14 @@ export default function MediaDelete({ mediaId, onDeleteSuccess }) {
   return (
     <div>
       {error && <p style={{ fontSize: '12px', color: 'red' }}>{error}</p>}
-      <button className="delete-button" onClick={handleDelete} disabled={isLoading}>
+      <button
+        className="px-3 py-1 bg-red-600 text-white font-semibold rounded shadow hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        onClick={handleDelete}
+        disabled={isLoading}
+      >
         {isLoading ? <Spinner /> : 'Delete'}
       </button>
+
     </div>
   )
 }

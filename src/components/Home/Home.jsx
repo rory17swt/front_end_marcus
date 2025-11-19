@@ -16,7 +16,7 @@ export default function Home() {
   const [showFullBio, setShowFullBio] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [bioHeight, setBioHeight] = useState(0)
-  const [slideDirection, setSlideDirection] = useState(null) // 'next' | 'prev' | null
+  const [slideDirection, setSlideDirection] = useState(null)
 
   const EVENTS_PER_PAGE = 4
   const navigate = useNavigate()
