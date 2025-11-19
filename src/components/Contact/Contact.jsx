@@ -67,8 +67,6 @@ export default function Contact() {
 
                 {/* Right Form */}
                 <div className="lg:w-1/2 p-8 rounded-lg">
-                    <h1 className="text-3xl font-bold mb-6 text-gray-900">Contact</h1>
-
                     {error.form && <p className="text-red-600 mb-4">{error.form}</p>}
 
                     <form onSubmit={handleSubmit} className="space-y-4">

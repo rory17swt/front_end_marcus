@@ -9,8 +9,9 @@ export default function MediaList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [imageStartIndex, setImageStartIndex] = useState(0)
-  const [nextIndex, setNextIndex] = useState(null)
-  const [fade, setFade] = useState(false)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [scrollY, setScrollY] = useState(0)
+  const [selectedImage, setSelectedImage] = useState(null)
 
   const IMAGES_PER_PAGE = 8
   const { user } = useContext(UserContext)
@@ -34,6 +35,26 @@ export default function MediaList() {
     fetchData()
   }, [])
 
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setSelectedImage(null)
+    }
+    if (selectedImage) {
+      window.addEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = 'hidden'
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = 'unset'
+    }
+  }, [selectedImage])
+
   function getYoutubeEmbedUrl(url) {
     if (!url) return null
     if (url.includes('watch?v=')) {
@@ -47,28 +68,24 @@ export default function MediaList() {
   }
 
   function handleImagePrev() {
-    const newIndex = Math.max(imageStartIndex - IMAGES_PER_PAGE, 0)
-    setNextIndex(newIndex)
-    setFade(true)
+    if (isTransitioning || imageStartIndex === 0) return
+    setIsTransitioning(true)
+
+    setTimeout(() => {
+      setImageStartIndex(prev => Math.max(prev - IMAGES_PER_PAGE, 0))
+      setTimeout(() => setIsTransitioning(false), 50)
+    }, 400)
   }
 
   function handleImageNext() {
-    const newIndex = Math.min(imageStartIndex + IMAGES_PER_PAGE, images.length - IMAGES_PER_PAGE)
-    setNextIndex(newIndex)
-    setFade(true)
-  }
+    if (isTransitioning || imageStartIndex + IMAGES_PER_PAGE >= images.length) return
+    setIsTransitioning(true)
 
-  // Switch images after fade completes
-  useEffect(() => {
-    if (fade && nextIndex !== null) {
-      const timeout = setTimeout(() => {
-        setImageStartIndex(nextIndex)
-        setNextIndex(null)
-        setFade(false)
-      }, 700) // match transition duration
-      return () => clearTimeout(timeout)
-    }
-  }, [fade, nextIndex])
+    setTimeout(() => {
+      setImageStartIndex(prev => Math.min(prev + IMAGES_PER_PAGE, images.length - IMAGES_PER_PAGE))
+      setTimeout(() => setIsTransitioning(false), 50)
+    }, 400)
+  }
 
   function handleDeleteSuccess(mediaId) {
     setMedia(prev => prev.filter(item => item.id !== mediaId))
@@ -77,21 +94,26 @@ export default function MediaList() {
   const images = media.filter(item => item.image && !item.youtube_url)
   const videos = media.filter(item => item.youtube_url)
   const visibleImages = images.slice(imageStartIndex, imageStartIndex + IMAGES_PER_PAGE)
-  const nextImages = nextIndex !== null ? images.slice(nextIndex, nextIndex + IMAGES_PER_PAGE) : []
 
   if (loading) return <Spinner />
   if (error) return <p className="text-red-600">{error}</p>
 
   return (
-    <div className="min-h-screen bg-[#E8DCC8] pt-0 pb-20">
+    <div className="min-h-screen bg-[#E8DCC8] px-0">
 
       {/* COVER PHOTO */}
-      <section className="relative w-full overflow-hidden mb-12">
+      <section className="relative w-full h-[110vh] overflow-hidden bg-black">
         <img
           src="/Media Front Photo.jpg"
           alt="Media"
-          className="w-full h-auto block object-contain"
+          className="absolute inset-0 w-full h-full object-cover object-top block"
+          style={{
+            transform: `translateY(${scrollY * 0.2}px)`,
+            transition: 'transform 0.1s linear',
+          }}
         />
+
+        {/* MEDIA Title Overlay */}
         <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 w-full text-center">
           <div
             className="absolute inset-0 mx-auto w-full h-full"
@@ -102,19 +124,37 @@ export default function MediaList() {
             }}
           />
           <h1
-            className="text-6xl md:text-9xl font-serif tracking-[1em] uppercase text-white drop-shadow-[4px_4px_15px_rgba(0,0,0,0.8)]"
-            style={{ letterSpacing: "1em" }}
+            className="text-6xl md:text-9xl font-serif uppercase text-white drop-shadow-[4px_4px_15px_rgba(0,0,0,0.8)]"
+            style={{
+              letterSpacing: "1em",
+              paddingLeft: "1em"
+            }}
           >
             MEDIA
           </h1>
         </div>
+
+        {/* SVG Wave at bottom */}
+        <div className="absolute bottom-0 w-full overflow-hidden leading-none">
+          <svg
+            className="w-full h-6 md:h-10"
+            viewBox="0 0 1440 80"
+            preserveAspectRatio="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0,0 C360,40 1080,40 1440,0 L1440,80 L0,80 Z"
+              fill="#E8DCC8"
+            />
+          </svg>
+        </div>
       </section>
 
       {/* MAIN CONTAINER */}
-      <div className="w-full max-w-[calc(100%-6rem)] mx-auto bg-white shadow-lg rounded-md p-6 md:p-12">
+      <div className="w-full max-w-[calc(100%-6rem)] mx-auto bg-white shadow-lg pb-0">
 
         {/* ---------------- IMAGES ---------------- */}
-        <section>
+        <section className="pt-10 px-4 md:px-10 pb-10">
           {images.length === 0 ? (
             <p className="text-gray-600">No images available.</p>
           ) : (
@@ -123,66 +163,47 @@ export default function MediaList() {
               <div className="flex gap-4">
                 <button
                   onClick={handleImagePrev}
-                  disabled={imageStartIndex === 0}
-                  className="px-4 py-2 bg-[#C4A77D] text-white rounded-lg hover:bg-[#B59770] disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  disabled={imageStartIndex === 0 || isTransitioning}
+                  className="px-4 py-2 bg-[#C4A77D] text-white rounded-lg hover:bg-[#B59770] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   ← Previous
                 </button>
                 <button
                   onClick={handleImageNext}
-                  disabled={imageStartIndex + IMAGES_PER_PAGE >= images.length}
-                  className="px-4 py-2 bg-[#C4A77D] text-white rounded-lg hover:bg-[#B59770] disabled:opacity-40 disabled:cursor-not-allowed transition"
+                  disabled={imageStartIndex + IMAGES_PER_PAGE >= images.length || isTransitioning}
+                  className="px-4 py-2 bg-[#C4A77D] text-white rounded-lg hover:bg-[#B59770] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   Next →
                 </button>
               </div>
 
-              {/* Image grid with crossfade */}
-              <div className="relative">
-                {/* Current images */}
-                <div className={`grid grid-cols-2 md:grid-cols-4 gap-6 transition-opacity duration-700 ${fade ? 'opacity-0' : 'opacity-100'}`}>
-                  {visibleImages.map(item => (
-                    <div key={item.id} className="relative group">
-                      <img
-                        src={item.image}
-                        alt="Media"
-                        className="w-full h-48 object-cover rounded-md shadow-sm transition-transform duration-700 group-hover:scale-[1.03]"
-                      />
-                      {user && (
-                        <div className="absolute top-2 right-2">
-                          <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Next images overlay */}
-                {fade && nextImages.length > 0 && (
-                  <div className="absolute top-0 left-0 w-full grid grid-cols-2 md:grid-cols-4 gap-6 transition-opacity duration-700 opacity-0 animate-fade-in">
-                    {nextImages.map(item => (
-                      <div key={item.id} className="relative group">
-                        <img
-                          src={item.image}
-                          alt="Media"
-                          className="w-full h-48 object-cover rounded-md shadow-sm transition-transform duration-700 group-hover:scale-[1.03]"
-                        />
-                        {user && (
-                          <div className="absolute top-2 right-2">
-                            <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
-                          </div>
-                        )}
+              {/* Image grid with fade transition */}
+              <div
+                className={`grid grid-cols-2 md:grid-cols-4 gap-6 transition-opacity duration-400 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'
+                  }`}
+              >
+                {visibleImages.map(item => (
+                  <div key={item.id} className="relative group">
+                    <img
+                      src={item.image}
+                      alt="Media"
+                      className="w-full h-48 object-cover rounded-md shadow-sm transition-transform duration-300 group-hover:scale-[1.03] cursor-pointer"
+                      onClick={() => setSelectedImage(item.image)}
+                    />
+                    {user && (
+                      <div className="absolute top-2 right-2 z-10">
+                        <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
                       </div>
-                    ))}
+                    )}
                   </div>
-                )}
+                ))}
               </div>
             </div>
           )}
         </section>
 
         {/* ---------------- VIDEOS ---------------- */}
-        <section className="mt-14">
+        <section className="px-4 md:px-10 pb-10">
           {videos.length === 0 ? (
             <p className="text-gray-600">No videos available.</p>
           ) : (
@@ -207,6 +228,28 @@ export default function MediaList() {
           )}
         </section>
       </div>
+
+      {/* ✅ IMAGE MODAL/LIGHTBOX */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button
+            className="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 transition-colors"
+            onClick={() => setSelectedImage(null)}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <img
+            src={selectedImage}
+            alt="Enlarged view"
+            className="max-w-full max-h-full object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   )
 }
