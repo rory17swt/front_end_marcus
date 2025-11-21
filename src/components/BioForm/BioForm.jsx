@@ -227,7 +227,7 @@ export default function BioForm() {
           disabled={isSaving}
           className="mt-8 w-full bg-[#C4A77D] text-white py-2 rounded-md hover:bg-[#B59770] transition disabled:opacity-60"
         >
-          {isSaving ? "Updating..." : "Update Bio"}
+          {isSaving ? "Updating Bio..." : "Update Bio"}
         </button>
 
       </div>

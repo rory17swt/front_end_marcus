@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router"
 import { updateEvent, getSingleEvent } from "../../services/events"
 import { UserContext } from "../../contexts/UserContext"
-import Spinner from "../Spinner/Spinner"
 
 export default function EventUpdate() {
     const { user } = useContext(UserContext)
@@ -167,7 +166,7 @@ export default function EventUpdate() {
                         disabled={isLoading}
                         className="w-full bg-[#C4A77D] text-white py-2 rounded-md hover:bg-[#B59770] transition-colors font-medium flex justify-center items-center"
                     >
-                        {isLoading ? <Spinner loading={isLoading} /> : 'Update Event'}
+                        {isLoading ? 'Updating Event...' : 'Update Event'}
                     </button>
                 </form>
             </div>

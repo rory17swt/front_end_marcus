@@ -2,7 +2,6 @@ import { useContext, useState, useEffect } from "react"
 import { useNavigate } from "react-router"
 import { UserContext } from "../../contexts/UserContext"
 import { createEvent } from "../../services/events"
-import Spinner from "../Spinner/Spinner"
 
 export default function EventCreate() {
     const { user } = useContext(UserContext)
@@ -179,9 +178,9 @@ export default function EventCreate() {
                     <button
                         disabled={isLoading}
                         className="w-full bg-[#C4A77D] text-white py-2 rounded-md 
-                       hover:bg-[#B59770] transition disabled:opacity-60 flex justify-center"
+             hover:bg-[#B59770] transition disabled:opacity-60 flex justify-center items-center"
                     >
-                        {isLoading ? <Spinner /> : "Add Event!"}
+                        {isLoading ? "Adding Event..." : "Add Event!"}
                     </button>
                 </form>
             </section>

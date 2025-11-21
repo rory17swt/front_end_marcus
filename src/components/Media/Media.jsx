@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from 'react'
 import { getAllMedia } from '../../services/media'
 import Spinner from '../Spinner/Spinner'
-import MediaDelete from '../MediaDelete/MediaDelete'
+import { deleteMedia } from '../../services/media'
 import { UserContext } from '../../contexts/UserContext'
 
 export default function MediaList() {
@@ -12,6 +12,8 @@ export default function MediaList() {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [selectedImage, setSelectedImage] = useState(null)
+  const [showDeletePopup, setShowDeletePopup] = useState(false)
+  const [mediaToDelete, setMediaToDelete] = useState(null)
 
   const IMAGES_PER_PAGE = 8
   const { user } = useContext(UserContext)
@@ -87,8 +89,27 @@ export default function MediaList() {
     }, 400)
   }
 
-  function handleDeleteSuccess(mediaId) {
-    setMedia(prev => prev.filter(item => item.id !== mediaId))
+  function handleDeleteClick(mediaId) {
+    setMediaToDelete(mediaId)
+    setShowDeletePopup(true)
+  }
+
+  async function confirmDelete() {
+    setShowDeletePopup(false)
+    try {
+      await deleteMedia(mediaToDelete)
+      setMedia(prev => prev.filter(item => item.id !== mediaToDelete))
+    } catch (err) {
+      alert('Failed to delete media')
+      console.error(err)
+    } finally {
+      setMediaToDelete(null)
+    }
+  }
+
+  function cancelDelete() {
+    setShowDeletePopup(false)
+    setMediaToDelete(null)
   }
 
   const images = media.filter(item => item.image && !item.youtube_url)
@@ -191,9 +212,12 @@ export default function MediaList() {
                       onClick={() => setSelectedImage(item.image)}
                     />
                     {user && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
-                      </div>
+                      <button
+                        onClick={() => handleDeleteClick(item.id)}
+                        className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition-colors z-10"
+                      >
+                        Delete
+                      </button>
                     )}
                   </div>
                 ))}
@@ -218,9 +242,12 @@ export default function MediaList() {
                     allowFullScreen
                   />
                   {user && (
-                    <div className="absolute top-2 right-2">
-                      <MediaDelete mediaId={item.id} onDeleteSuccess={handleDeleteSuccess} />
-                    </div>
+                    <button
+                      onClick={() => handleDeleteClick(item.id)}
+                      className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition-colors z-10"
+                    >
+                      Delete
+                    </button>
                   )}
                 </div>
               ))}
@@ -228,6 +255,29 @@ export default function MediaList() {
           )}
         </section>
       </div>
+
+      {/* Delete Confirmation Popup */}
+      {showDeletePopup && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#F5EFE7] border border-[#C4A77D] p-6 rounded-lg shadow-lg z-50 max-w-xl text-center">
+          <p className="text-gray-800 font-semibold mb-4">
+            Are you sure you want to delete this media?
+          </p>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={cancelDelete}
+              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDelete}
+              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ✅ IMAGE MODAL/LIGHTBOX */}
       {selectedImage && (

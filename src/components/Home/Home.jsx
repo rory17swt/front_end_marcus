@@ -17,6 +17,8 @@ export default function Home() {
   const [scrollY, setScrollY] = useState(0)
   const [bioHeight, setBioHeight] = useState(0)
   const [slideDirection, setSlideDirection] = useState(null)
+  const [showDeletePopup, setShowDeletePopup] = useState(false)
+  const [eventToDelete, setEventToDelete] = useState(null)
 
   const EVENTS_PER_PAGE = 4
   const navigate = useNavigate()
@@ -66,27 +68,38 @@ export default function Home() {
   function handlePrev() {
     if (startIndex === 0) return
     setSlideDirection('prev')
-    setStartIndex(prev => Math.max(prev - 1, 0))
+    setStartIndex(prev => Math.max(prev - EVENTS_PER_PAGE, 0))
   }
 
   function handleNext() {
     if (startIndex + EVENTS_PER_PAGE >= events.length) return
     setSlideDirection('next')
-    setStartIndex(prev => Math.min(prev + 1, events.length - EVENTS_PER_PAGE))
+    setStartIndex(prev => Math.min(prev + EVENTS_PER_PAGE, events.length - EVENTS_PER_PAGE))
   }
 
-  async function handleDelete(eventId) {
-    if (!window.confirm('Are you sure you want to delete this event?')) return
-    setDeletingId(eventId)
+  function handleDeleteClick(eventId) {
+    setEventToDelete(eventId)
+    setShowDeletePopup(true)
+  }
+
+  async function confirmDelete() {
+    setDeletingId(eventToDelete)
+    setShowDeletePopup(false)
     try {
-      await deleteEvent(eventId)
-      setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId))
+      await deleteEvent(eventToDelete)
+      setEvents(prevEvents => prevEvents.filter(event => event.id !== eventToDelete))
     } catch (err) {
       alert('Failed to delete event')
       console.error(err)
     } finally {
       setDeletingId(null)
+      setEventToDelete(null)
     }
+  }
+
+  function cancelDelete() {
+    setShowDeletePopup(false)
+    setEventToDelete(null)
   }
 
   function handleUpdate(eventId) {
@@ -222,7 +235,7 @@ export default function Home() {
                 <button
                   onClick={handlePrev}
                   disabled={startIndex === 0}
-                  className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                  className="px-4 py-2 bg-[#C4A77D] text-white rounded hover:bg-[#B59770] disabled:opacity-40 transition-colors flex-shrink-0 text-xl shadow-md"
                 >
                   ←
                 </button>
@@ -271,7 +284,7 @@ export default function Home() {
                             {user && (
                               <>
                                 <button
-                                  onClick={() => handleDelete(event.id)}
+                                  onClick={() => handleDeleteClick(event.id)}
                                   disabled={deletingId === event.id}
                                   className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 disabled:opacity-50 transition-colors z-10"
                                   aria-label={`Delete ${event.title}`}
@@ -301,7 +314,7 @@ export default function Home() {
                 <button
                   onClick={handleNext}
                   disabled={startIndex + EVENTS_PER_PAGE >= events.length}
-                  className="px-3 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+                  className="px-4 py-2 bg-[#C4A77D] text-white rounded hover:bg-[#B59770] disabled:opacity-40 transition-colors flex-shrink-0 text-xl shadow-md"
                 >
                   →
                 </button>
@@ -310,6 +323,29 @@ export default function Home() {
           )}
         </section>
       </div>
+
+      {/* Delete Confirmation Popup */}
+      {showDeletePopup && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#F5EFE7] border border-[#C4A77D] p-6 rounded-lg shadow-lg z-50 max-w-xl text-center">
+          <p className="text-gray-800 font-semibold mb-4">
+            Are you sure you want to delete this event?
+          </p>
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={cancelDelete}
+              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDelete}
+              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

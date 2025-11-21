@@ -2,7 +2,6 @@ import { useContext, useState, useEffect } from "react"
 import { useNavigate } from "react-router"
 import { UserContext } from "../../contexts/UserContext"
 import { createMedia } from "../../services/media"
-import Spinner from "../Spinner/Spinner"
 
 
 export default function MediaCreate() {
@@ -158,9 +157,9 @@ export default function MediaCreate() {
                     <button
                         disabled={isLoading}
                         className="w-full bg-[#C4A77D] text-white py-2 rounded-md 
-                       hover:bg-[#B59770] transition disabled:opacity-60 flex justify-center"
+           hover:bg-[#B59770] transition disabled:opacity-60 flex justify-center"
                     >
-                        {isLoading ? <Spinner /> : "Upload Media"}
+                        {isLoading ? "Adding Media..." : "Upload Media"}
                     </button>
                 </form>
             </section>

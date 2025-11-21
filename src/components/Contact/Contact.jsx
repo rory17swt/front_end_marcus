@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 import { submitContactForm } from "../../services/contact";
-import Spinner from '../Spinner/Spinner';
 import { getCSRF } from "../../services/contact";
 
 export default function Contact() {
@@ -16,6 +16,8 @@ export default function Contact() {
     const [isLoading, setIsLoading] = useState(false);
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
     const [showFailedPopup, setShowFailedPopup] = useState(false);
+
+    const navigate = useNavigate()
 
     useEffect(() => {
         getCSRF();
@@ -151,7 +153,7 @@ export default function Contact() {
                             disabled={isLoading}
                             className="w-full bg-[#C4A77D] text-white py-2 rounded-md hover:bg-[#B59770] transition-colors font-medium disabled:opacity-60"
                         >
-                            {isLoading ? <Spinner loading={isLoading} /> : 'Send Message'}
+                            {isLoading ? 'Sending Message...' : 'Send Message'}
                         </button>
                     </form>
                 </div>
@@ -159,13 +161,16 @@ export default function Contact() {
 
             {/* Success Popup */}
             {showSuccessPopup && (
-                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-100 border border-green-400 p-6 rounded-lg shadow-lg z-50 max-w-sm text-center">
-                    <p className="text-green-800 font-semibold mb-4">
+                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#F5EFE7] border border-[#C4A77D] p-6 rounded-lg shadow-lg z-50 max-w-xl text-center">
+                    <p className="text-gray-800 font-semibold mb-4">
                         Thanks for reaching out! Your message has been sent and Marcus will get back to you soon.
                     </p>
                     <button
-                        onClick={() => setShowSuccessPopup(false)}
-                        className="bg-green-800 text-white px-4 py-2 rounded-md hover:bg-green-900"
+                        onClick={() => {
+                            setShowSuccessPopup(false);
+                            navigate('/');
+                        }}
+                        className="bg-[#C4A77D] text-white px-4 py-2 rounded-md hover:bg-[#B59770]"
                     >
                         Close
                     </button>
@@ -174,9 +179,9 @@ export default function Contact() {
 
             {/* Failed Popup */}
             {showFailedPopup && (
-                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-100 border border-red-400 p-6 rounded-lg shadow-lg z-50 max-w-sm text-center">
+                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-100 border border-red-400 p-6 rounded-lg shadow-lg z-50 max-w-xl text-center">
                     <p className="text-red-800 font-semibold mb-4">
-                        Message Failed. Something went wrong and your message couldn't be sent. Please try again later.
+                        Message Failed. Something went wrong and your message wasn't sent. Please try again later or email Marcus at marcus@swietlicki.eu.
                     </p>
                     <button
                         onClick={() => setShowFailedPopup(false)}
