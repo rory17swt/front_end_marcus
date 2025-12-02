@@ -1,11 +1,13 @@
 import { useEffect, useState, useContext } from 'react'
-import { getAllMedia } from '../../services/media'
+import { getAllMedia, getAllProductions } from '../../services/media'
 import Spinner from '../Spinner/Spinner'
 import { deleteMedia } from '../../services/media'
 import { UserContext } from '../../contexts/UserContext'
 
 export default function MediaList() {
   const [media, setMedia] = useState([])
+  const [productions, setProductions] = useState([])
+  const [activeFilter, setActiveFilter] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [imageStartIndex, setImageStartIndex] = useState(0)
@@ -22,11 +24,15 @@ export default function MediaList() {
     async function fetchData() {
       setLoading(true)
       try {
-        const mediaRes = await getAllMedia()
+        const [mediaRes, productionsRes] = await Promise.all([
+          getAllMedia(),
+          getAllProductions()
+        ])
         const sortedMedia = mediaRes.data.sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at)
         )
         setMedia(sortedMedia)
+        setProductions(productionsRes.data)
       } catch (error) {
         setError('Something went wrong loading media')
         console.error(error)
@@ -69,6 +75,15 @@ export default function MediaList() {
     return null
   }
 
+  function handleFilterChange(slug) {
+    setIsTransitioning(true)
+    setTimeout(() => {
+      setActiveFilter(slug)
+      setImageStartIndex(0)
+      setTimeout(() => setIsTransitioning(false), 50)
+    }, 400)
+  }
+
   function handleImagePrev() {
     if (isTransitioning || imageStartIndex === 0) return
     setIsTransitioning(true)
@@ -80,11 +95,11 @@ export default function MediaList() {
   }
 
   function handleImageNext() {
-    if (isTransitioning || imageStartIndex + IMAGES_PER_PAGE >= images.length) return
+    if (isTransitioning || imageStartIndex + IMAGES_PER_PAGE >= filteredImages.length) return
     setIsTransitioning(true)
 
     setTimeout(() => {
-      setImageStartIndex(prev => Math.min(prev + IMAGES_PER_PAGE, images.length - IMAGES_PER_PAGE))
+      setImageStartIndex(prev => Math.min(prev + IMAGES_PER_PAGE, filteredImages.length - IMAGES_PER_PAGE))
       setTimeout(() => setIsTransitioning(false), 50)
     }, 400)
   }
@@ -114,7 +129,13 @@ export default function MediaList() {
 
   const images = media.filter(item => item.image && !item.youtube_url)
   const videos = media.filter(item => item.youtube_url)
-  const visibleImages = images.slice(imageStartIndex, imageStartIndex + IMAGES_PER_PAGE)
+  
+  // Filter images by production
+  const filteredImages = activeFilter
+    ? images.filter(item => item.production_slug === activeFilter)
+    : images
+    
+  const visibleImages = filteredImages.slice(imageStartIndex, imageStartIndex + IMAGES_PER_PAGE)
 
   if (loading) return <Spinner />
   if (error) return <p className="text-red-600">{error}</p>
@@ -180,6 +201,36 @@ export default function MediaList() {
             <p className="text-gray-600">No images available.</p>
           ) : (
             <div className="space-y-6">
+              
+              {/* Production Filters */}
+              {productions.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => handleFilterChange(null)}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      activeFilter === null
+                        ? 'bg-[#C4A77D] text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    All
+                  </button>
+                  {productions.map(prod => (
+                    <button
+                      key={prod.id}
+                      onClick={() => handleFilterChange(prod.slug)}
+                      className={`px-4 py-2 rounded-lg transition-colors ${
+                        activeFilter === prod.slug
+                          ? 'bg-[#C4A77D] text-white'
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      {prod.name} {prod.year && `(${prod.year})`}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {/* Carousel controls */}
               <div className="flex gap-4">
                 <button
@@ -191,7 +242,7 @@ export default function MediaList() {
                 </button>
                 <button
                   onClick={handleImageNext}
-                  disabled={imageStartIndex + IMAGES_PER_PAGE >= images.length || isTransitioning}
+                  disabled={imageStartIndex + IMAGES_PER_PAGE >= filteredImages.length || isTransitioning}
                   className="px-4 py-2 bg-[#C4A77D] text-white rounded-lg hover:bg-[#B59770] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   Next →
@@ -222,6 +273,11 @@ export default function MediaList() {
                   </div>
                 ))}
               </div>
+
+              {/* No results message */}
+              {filteredImages.length === 0 && activeFilter && (
+                <p className="text-gray-600">No images in this production.</p>
+              )}
             </div>
           )}
         </section>
@@ -279,7 +335,7 @@ export default function MediaList() {
         </div>
       )}
 
-      {/* ✅ IMAGE MODAL/LIGHTBOX */}
+      {/* IMAGE MODAL/LIGHTBOX */}
       {selectedImage && (
         <div
           className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"

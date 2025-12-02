@@ -1,22 +1,38 @@
 import { useContext, useState, useEffect } from "react"
 import { useNavigate } from "react-router"
 import { UserContext } from "../../contexts/UserContext"
-import { createMedia } from "../../services/media"
-
+import { createMedia, getAllProductions, createProduction, deleteProduction } from "../../services/media"
 
 export default function MediaCreate() {
     const { user } = useContext(UserContext)
 
     const [formData, setFormData] = useState({
         images: [],
-        youtube_url: ''
+        youtube_url: '',
+        production: ''
     })
 
+    const [productions, setProductions] = useState([])
+    const [newProduction, setNewProduction] = useState({ name: '', year: '' })
     const [previewImages, setPreviewImages] = useState([])
     const [error, setError] = useState({})
     const [isLoading, setIsLoading] = useState(false)
+    const [productionLoading, setProductionLoading] = useState(false)
 
     const navigate = useNavigate()
+
+    useEffect(() => {
+        fetchProductions()
+    }, [])
+
+    async function fetchProductions() {
+        try {
+            const res = await getAllProductions()
+            setProductions(res.data)
+        } catch (err) {
+            console.error('Failed to load productions', err)
+        }
+    }
 
     function handleChange({ target: { name, value, type, files } }) {
         if (type === 'file') {
@@ -26,6 +42,49 @@ export default function MediaCreate() {
             setFormData({ ...formData, images: fileArray })
         } else {
             setFormData({ ...formData, [name]: value })
+        }
+    }
+
+    function handleProductionInputChange({ target: { name, value } }) {
+        setNewProduction({ ...newProduction, [name]: value })
+    }
+
+    async function handleCreateProduction(e) {
+        e.preventDefault()
+        if (!newProduction.name.trim()) return
+
+        setProductionLoading(true)
+        try {
+            const data = { name: newProduction.name.trim() }
+            if (newProduction.year) data.year = parseInt(newProduction.year)
+            
+            await createProduction(data)
+            await fetchProductions()
+            setNewProduction({ name: '', year: '' })
+        } catch (err) {
+            console.error('Failed to create production', err)
+            alert('Failed to create production')
+        } finally {
+            setProductionLoading(false)
+        }
+    }
+
+    async function handleDeleteProduction(slug) {
+        if (!confirm('Delete this production? Images will be untagged but not deleted.')) return
+
+        try {
+            await deleteProduction(slug)
+            await fetchProductions()
+            // Clear selection if deleted production was selected
+            if (formData.production) {
+                const deleted = productions.find(p => p.slug === slug)
+                if (deleted && formData.production === String(deleted.id)) {
+                    setFormData({ ...formData, production: '' })
+                }
+            }
+        } catch (err) {
+            console.error('Failed to delete production', err)
+            alert('Failed to delete production')
         }
     }
 
@@ -48,11 +107,14 @@ export default function MediaCreate() {
                 for (const img of formData.images) {
                     const imgData = new FormData()
                     imgData.append("image", img)
+                    if (formData.production) {
+                        imgData.append("production", formData.production)
+                    }
                     promises.push(createMedia(imgData))
                 }
             }
 
-            // Upload YouTube URL
+            // Upload YouTube URL (no production tag)
             if (formData.youtube_url.trim()) {
                 const ytData = new FormData()
                 ytData.append("youtube_url", formData.youtube_url.trim())
@@ -84,6 +146,63 @@ export default function MediaCreate() {
                     Upload Media
                 </h1>
 
+                {/* ============ PRODUCTION MANAGEMENT ============ */}
+                <div className="mb-10 p-4 bg-gray-50 rounded-lg">
+                    <h2 className="text-xl font-serif text-gray-800 mb-4">Manage Productions</h2>
+                    
+                    {/* Create new production */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        <input
+                            type="text"
+                            name="name"
+                            placeholder="Production name"
+                            value={newProduction.name}
+                            onChange={handleProductionInputChange}
+                            className="flex-1 min-w-[150px] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-[#C4A77D]"
+                        />
+                        <input
+                            type="number"
+                            name="year"
+                            placeholder="Year"
+                            value={newProduction.year}
+                            onChange={handleProductionInputChange}
+                            className="w-24 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:border-[#C4A77D]"
+                        />
+                        <button
+                            onClick={handleCreateProduction}
+                            disabled={productionLoading || !newProduction.name.trim()}
+                            className="bg-[#C4A77D] text-white px-4 py-2 rounded-md hover:bg-[#B59770] disabled:opacity-50 transition-colors"
+                        >
+                            {productionLoading ? 'Adding...' : 'Add'}
+                        </button>
+                    </div>
+
+                    {/* List existing productions */}
+                    {productions.length > 0 ? (
+                        <ul className="space-y-2">
+                            {productions.map(prod => (
+                                <li key={prod.id} className="flex justify-between items-center bg-white p-2 rounded border border-gray-200">
+                                    <span className="text-gray-700">
+                                        {prod.name} {prod.year && `(${prod.year})`}
+                                        <span className="text-gray-400 text-sm ml-2">
+                                            — {prod.media_count} image{prod.media_count !== 1 && 's'}
+                                        </span>
+                                    </span>
+                                    <button
+                                        onClick={() => handleDeleteProduction(prod.slug)}
+                                        className="text-red-500 hover:text-red-700 text-sm"
+                                    >
+                                        Delete
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-gray-500 text-sm">No productions yet. Create one above.</p>
+                    )}
+                </div>
+
+                {/* ============ MEDIA UPLOAD FORM ============ */}
                 <form onSubmit={handleSubmit} className="space-y-6 font-body">
 
                     {/* Image Upload */}
@@ -123,6 +242,32 @@ export default function MediaCreate() {
                             <p className="text-red-600 text-sm mt-1">{error.image}</p>
                         )}
                     </div>
+
+                    {/* Production Dropdown (for images) */}
+                    {formData.images.length > 0 && (
+                        <div>
+                            <label
+                                htmlFor="production"
+                                className="block mb-1 text-gray-700 font-medium"
+                            >
+                                Tag with Production (optional)
+                            </label>
+                            <select
+                                id="production"
+                                name="production"
+                                value={formData.production}
+                                onChange={handleChange}
+                                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:border-[#C4A77D] transition-colors"
+                            >
+                                <option value="">No production</option>
+                                {productions.map(prod => (
+                                    <option key={prod.id} value={prod.id}>
+                                        {prod.name} {prod.year && `(${prod.year})`}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     {/* YouTube URL */}
                     <div>
