@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { getAllMedia, getAllProductions } from '../../services/media'
 import Spinner from '../Spinner/Spinner'
 import { deleteMedia } from '../../services/media'
@@ -19,6 +20,7 @@ export default function MediaList() {
 
   const IMAGES_PER_PAGE = 8
   const { user } = useContext(UserContext)
+  const navigate = useNavigate()
 
   useEffect(() => {
     async function fetchData() {
@@ -129,12 +131,12 @@ export default function MediaList() {
 
   const images = media.filter(item => item.image && !item.youtube_url)
   const videos = media.filter(item => item.youtube_url)
-  
+
   // Filter images by production
   const filteredImages = activeFilter
     ? images.filter(item => item.production_slug === activeFilter)
     : images
-    
+
   const visibleImages = filteredImages.slice(imageStartIndex, imageStartIndex + IMAGES_PER_PAGE)
 
   if (loading) return <Spinner />
@@ -201,17 +203,16 @@ export default function MediaList() {
             <p className="text-gray-600">No images available.</p>
           ) : (
             <div className="space-y-6">
-              
+
               {/* Production Filters */}
               {productions.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => handleFilterChange(null)}
-                    className={`px-4 py-2 rounded-lg transition-colors ${
-                      activeFilter === null
-                        ? 'bg-[#C4A77D] text-white'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }`}
+                    className={`px-4 py-2 rounded-lg transition-colors ${activeFilter === null
+                      ? 'bg-[#C4A77D] text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
                   >
                     All
                   </button>
@@ -219,11 +220,10 @@ export default function MediaList() {
                     <button
                       key={prod.id}
                       onClick={() => handleFilterChange(prod.slug)}
-                      className={`px-4 py-2 rounded-lg transition-colors ${
-                        activeFilter === prod.slug
-                          ? 'bg-[#C4A77D] text-white'
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      }`}
+                      className={`px-4 py-2 rounded-lg transition-colors ${activeFilter === prod.slug
+                        ? 'bg-[#C4A77D] text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
                     >
                       {prod.name} {prod.year && `(${prod.year})`}
                     </button>
@@ -263,12 +263,20 @@ export default function MediaList() {
                       onClick={() => setSelectedImage(item.image)}
                     />
                     {user && (
-                      <button
-                        onClick={() => handleDeleteClick(item.id)}
-                        className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition-colors z-10"
-                      >
-                        Delete
-                      </button>
+                      <div className="absolute top-2 right-2 flex gap-2 z-10">
+                        <button
+                          onClick={() => navigate(`/media/${item.id}/edit`)}
+                          className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(item.id)}
+                          className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     )}
                   </div>
                 ))}
