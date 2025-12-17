@@ -20,6 +20,7 @@
     "@tiptap/react": "^3.6.5",
     "@tiptap/starter-kit": "^3.6.5",
     "axios": "^1.12.2",
+    "browser-image-compression": "^2.0.2",
     "js-cookie": "^3.0.5",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

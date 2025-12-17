@@ -1,6 +1,7 @@
 import { useContext, useState, useEffect } from "react"
 import { useNavigate } from "react-router"
 import { UserContext } from "../../contexts/UserContext"
+import imageCompression from 'browser-image-compression'
 import { createMedia, getAllProductions, createProduction, deleteProduction } from "../../services/media"
 
 export default function MediaCreate() {
@@ -34,12 +35,27 @@ export default function MediaCreate() {
         }
     }
 
-    function handleChange({ target: { name, value, type, files } }) {
+    async function handleChange({ target: { name, value, type, files } }) {
         if (type === 'file') {
             const fileArray = Array.from(files)
-            const previews = fileArray.map(file => URL.createObjectURL(file))
-            setPreviewImages(previews)
-            setFormData({ ...formData, images: fileArray })
+
+            const options = {
+                maxSizeMB: 9,
+                maxWidthOrHeight: 4096,
+                useWebWorker: true
+            }
+
+            try {
+                const compressed = await Promise.all(
+                    fileArray.map(file => imageCompression(file, options))
+                )
+                const previews = compressed.map(file => URL.createObjectURL(file))
+                setPreviewImages(previews)
+                setFormData({ ...formData, images: compressed })
+            } catch (err) {
+                console.error('Compression failed', err)
+                setError({ image: 'Failed to process images' })
+            }
         } else {
             setFormData({ ...formData, [name]: value })
         }
