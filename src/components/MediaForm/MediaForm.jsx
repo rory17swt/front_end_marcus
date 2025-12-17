@@ -57,7 +57,7 @@ export default function MediaCreate() {
         try {
             const data = { name: newProduction.name.trim() }
             if (newProduction.year) data.year = parseInt(newProduction.year)
-            
+
             await createProduction(data)
             await fetchProductions()
             setNewProduction({ name: '', year: '' })
@@ -149,7 +149,7 @@ export default function MediaCreate() {
                 {/* ============ PRODUCTION MANAGEMENT ============ */}
                 <div className="mb-10 p-4 bg-gray-50 rounded-lg">
                     <h2 className="text-xl font-serif text-gray-800 mb-4">Manage Productions</h2>
-                    
+
                     {/* Create new production */}
                     <div className="flex flex-wrap gap-2 mb-4">
                         <input
@@ -216,13 +216,13 @@ export default function MediaCreate() {
 
                         {/* Preview grid */}
                         {previewImages.length > 0 && (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+                            <div className="flex flex-wrap gap-4 mb-4">
                                 {previewImages.map((src, idx) => (
                                     <img
                                         key={idx}
                                         src={src}
                                         alt={`Preview ${idx + 1}`}
-                                        className="w-full h-32 object-cover rounded-lg border border-gray-300 shadow-sm"
+                                        className="max-h-48 rounded-lg border border-gray-300 shadow-sm"
                                     />
                                 ))}
                             </div>

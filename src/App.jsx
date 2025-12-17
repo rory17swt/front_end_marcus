@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 
 import Home from './components/Home/Home'
 import Media from './components/Media/Media'
+import MediaEdit from "./components/MediaEdit/MediaEdit"
 import Contact from './components/Contact/Contact'
 import AdminLogin from './components/AdminLogin/AdminLogin'
 import BioForm from './components/BioForm/BioForm'
@@ -29,7 +30,7 @@ function App() {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      
+
       {!isPageReady ? (
         <div className="flex-1 flex items-center justify-center">
           <Spinner />
@@ -39,13 +40,14 @@ function App() {
           <div className="flex-1">
             <Routes>
               <Route path='/' element={<Home />} />
+              <Route path="/media/:id/edit" element={<MediaEdit />} />
+              <Route path='/media/create' element={<MediaForm />} />
               <Route path='/media' element={<Media />} />
               <Route path='/contact' element={<Contact />} />
               <Route path='/adminLogin' element={<AdminLogin />} />
               <Route path='/bioForm' element={<BioForm />} />
               <Route path='/events/create' element={<EventCreate />} />
               <Route path='/events/:eventId/update' element={<EventUpdate />} />
-              <Route path='/media/create' element={<MediaForm />} />
             </Routes>
           </div>
           <Footer />
