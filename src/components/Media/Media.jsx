@@ -174,37 +174,28 @@ export default function MediaList() {
 
         {/* ---------------- PRODUCTION PHOTOS ---------------- */}
         <section className="pt-10 px-4 md:px-10 pb-10">
-          <h2 className="text-3xl font-serif text-gray-800 mb-6">Production</h2>
+          <h2 className="text-3xl font-serif text-gray-800 mb-6">Productions</h2>
 
           {productionImages.length === 0 ? (
             <p className="text-gray-600">No production photos available.</p>
           ) : (
             <div className="space-y-6">
 
-              {/* Production Filters */}
+              {/* Production Filter Dropdown */}
               {productions.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => handleFilterChange(null)}
-                    className={`px-4 py-2 rounded-lg transition-colors ${activeFilter === null
-                      ? 'bg-[#C4A77D] text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      }`}
+                <div>
+                  <select
+                    value={activeFilter || ''}
+                    onChange={(e) => handleFilterChange(e.target.value || null)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-0 hover:bg-gray-100 transition-colors cursor-pointer"
                   >
-                    All
-                  </button>
-                  {productions.map(prod => (
-                    <button
-                      key={prod.id}
-                      onClick={() => handleFilterChange(prod.slug)}
-                      className={`px-4 py-2 rounded-lg transition-colors ${activeFilter === prod.slug
-                        ? 'bg-[#C4A77D] text-white'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        }`}
-                    >
-                      {prod.name} {prod.year && `(${prod.year})`}
-                    </button>
-                  ))}
+                    <option value="">All Productions</option>
+                    {productions.map(prod => (
+                      <option key={prod.id} value={prod.slug}>
+                        {prod.name} {prod.year && `(${prod.year})`}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               )}
 

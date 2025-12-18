@@ -2,7 +2,7 @@ import { useContext, useState, useEffect } from "react"
 import { useNavigate } from "react-router"
 import { UserContext } from "../../contexts/UserContext"
 import imageCompression from 'browser-image-compression'
-import { createMedia, getAllProductions, createProduction, deleteProduction } from "../../services/media"
+import { createMedia, getAllProductions, createProduction, updateProduction, deleteProduction } from "../../services/media"
 
 export default function MediaCreate() {
     const { user } = useContext(UserContext)
@@ -16,10 +16,14 @@ export default function MediaCreate() {
 
     const [productions, setProductions] = useState([])
     const [newProduction, setNewProduction] = useState({ name: '', year: '' })
+    const [editingProduction, setEditingProduction] = useState(null)
+    const [editValues, setEditValues] = useState({ name: '', year: '' })
     const [previewImages, setPreviewImages] = useState([])
     const [error, setError] = useState({})
     const [isLoading, setIsLoading] = useState(false)
     const [productionLoading, setProductionLoading] = useState(false)
+    const [showDeletePopup, setShowDeletePopup] = useState(false)
+    const [productionToDelete, setProductionToDelete] = useState(null)
 
     const navigate = useNavigate()
 
@@ -58,7 +62,6 @@ export default function MediaCreate() {
                 setError({ image: 'Failed to process images' })
             }
         } else {
-            // If switching to personality, clear production selection
             if (name === 'category' && value === 'personality') {
                 setFormData({ ...formData, category: value, production: '' })
             } else {
@@ -69,6 +72,10 @@ export default function MediaCreate() {
 
     function handleProductionInputChange({ target: { name, value } }) {
         setNewProduction({ ...newProduction, [name]: value })
+    }
+
+    function handleEditInputChange({ target: { name, value } }) {
+        setEditValues({ ...editValues, [name]: value })
     }
 
     async function handleCreateProduction(e) {
@@ -91,14 +98,52 @@ export default function MediaCreate() {
         }
     }
 
-    async function handleDeleteProduction(slug) {
-        if (!confirm('Delete this production? Images will be untagged but not deleted.')) return
+    function startEditing(prod) {
+        setEditingProduction(prod.slug)
+        setEditValues({ name: prod.name, year: prod.year || '' })
+    }
 
+    function cancelEditing() {
+        setEditingProduction(null)
+        setEditValues({ name: '', year: '' })
+    }
+
+    async function handleUpdateProduction(slug) {
+        if (!editValues.name.trim()) return
+
+        setProductionLoading(true)
         try {
-            await deleteProduction(slug)
+            const data = { name: editValues.name.trim() }
+            if (editValues.year) {
+                data.year = parseInt(editValues.year)
+            } else {
+                data.year = null
+            }
+
+            await updateProduction(slug, data)
+            await fetchProductions()
+            setEditingProduction(null)
+            setEditValues({ name: '', year: '' })
+        } catch (err) {
+            console.error('Failed to update production', err)
+            alert('Failed to update production')
+        } finally {
+            setProductionLoading(false)
+        }
+    }
+
+    function handleDeleteClick(slug) {
+        setProductionToDelete(slug)
+        setShowDeletePopup(true)
+    }
+
+    async function confirmDelete() {
+        setShowDeletePopup(false)
+        try {
+            await deleteProduction(productionToDelete)
             await fetchProductions()
             if (formData.production) {
-                const deleted = productions.find(p => p.slug === slug)
+                const deleted = productions.find(p => p.slug === productionToDelete)
                 if (deleted && formData.production === String(deleted.id)) {
                     setFormData({ ...formData, production: '' })
                 }
@@ -106,7 +151,14 @@ export default function MediaCreate() {
         } catch (err) {
             console.error('Failed to delete production', err)
             alert('Failed to delete production')
+        } finally {
+            setProductionToDelete(null)
         }
+    }
+
+    function cancelDelete() {
+        setShowDeletePopup(false)
+        setProductionToDelete(null)
     }
 
     useEffect(() => {
@@ -120,7 +172,6 @@ export default function MediaCreate() {
         setIsLoading(true)
         setError({})
 
-        // Validate category is selected when images are uploaded
         if (formData.images.length > 0 && !formData.category) {
             setError({ category: "Please select a category for your images." })
             setIsLoading(false)
@@ -130,7 +181,6 @@ export default function MediaCreate() {
         try {
             const promises = []
 
-            // Upload images
             if (formData.images.length > 0) {
                 for (const img of formData.images) {
                     const imgData = new FormData()
@@ -143,11 +193,10 @@ export default function MediaCreate() {
                 }
             }
 
-            // Upload YouTube URL
             if (formData.youtube_url.trim()) {
                 const ytData = new FormData()
                 ytData.append("youtube_url", formData.youtube_url.trim())
-                ytData.append("category", "production") // Default for videos
+                ytData.append("category", "production")
                 promises.push(createMedia(ytData))
             }
 
@@ -209,19 +258,62 @@ export default function MediaCreate() {
                     {productions.length > 0 ? (
                         <ul className="space-y-2">
                             {productions.map(prod => (
-                                <li key={prod.id} className="flex justify-between items-center bg-white p-2 rounded border border-gray-200">
-                                    <span className="text-gray-700">
-                                        {prod.name} {prod.year && `(${prod.year})`}
-                                        <span className="text-gray-400 text-sm ml-2">
-                                            — {prod.media_count} image{prod.media_count !== 1 && 's'}
-                                        </span>
-                                    </span>
-                                    <button
-                                        onClick={() => handleDeleteProduction(prod.slug)}
-                                        className="text-red-500 hover:text-red-700 text-sm"
-                                    >
-                                        Delete
-                                    </button>
+                                <li key={prod.id} className="bg-white p-2 rounded border border-gray-200">
+                                    {editingProduction === prod.slug ? (
+                                        <div className="flex flex-wrap gap-2 items-center">
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={editValues.name}
+                                                onChange={handleEditInputChange}
+                                                className="flex-1 min-w-[120px] border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:border-[#C4A77D]"
+                                            />
+                                            <input
+                                                type="number"
+                                                name="year"
+                                                value={editValues.year}
+                                                onChange={handleEditInputChange}
+                                                placeholder="Year"
+                                                className="w-20 border border-gray-300 rounded-md px-2 py-1 text-sm focus:outline-none focus:border-[#C4A77D]"
+                                            />
+                                            <button
+                                                onClick={() => handleUpdateProduction(prod.slug)}
+                                                disabled={productionLoading || !editValues.name.trim()}
+                                                className="text-green-600 hover:text-green-800 text-sm disabled:opacity-50"
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                onClick={cancelEditing}
+                                                className="text-gray-500 hover:text-gray-700 text-sm"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">
+                                                {prod.name} {prod.year && `(${prod.year})`}
+                                                <span className="text-gray-400 text-sm ml-2">
+                                                    — {prod.media_count} image{prod.media_count !== 1 && 's'}
+                                                </span>
+                                            </span>
+                                            <div className="flex gap-3">
+                                                <button
+                                                    onClick={() => startEditing(prod)}
+                                                    className="text-blue-500 hover:text-blue-700 text-sm"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteClick(prod.slug)}
+                                                    className="text-red-500 hover:text-red-700 text-sm"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </li>
                             ))}
                         </ul>
@@ -369,6 +461,32 @@ export default function MediaCreate() {
                     </button>
                 </form>
             </section>
+
+            {/* Delete Confirmation Popup */}
+            {showDeletePopup && (
+                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#F5EFE7] border border-[#C4A77D] p-6 rounded-lg shadow-lg z-50 max-w-xl text-center">
+                    <p className="text-gray-800 font-semibold mb-2">
+                        Are you sure you want to delete this production?
+                    </p>
+                    <p className="text-gray-600 text-sm mb-4">
+                        Images will be untagged but not deleted.
+                    </p>
+                    <div className="flex gap-4 justify-center">
+                        <button
+                            onClick={cancelDelete}
+                            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={confirmDelete}
+                            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
