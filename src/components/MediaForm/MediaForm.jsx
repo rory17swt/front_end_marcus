@@ -10,6 +10,7 @@ export default function MediaCreate() {
     const [formData, setFormData] = useState({
         images: [],
         youtube_url: '',
+        category: '',
         production: ''
     })
 
@@ -57,7 +58,12 @@ export default function MediaCreate() {
                 setError({ image: 'Failed to process images' })
             }
         } else {
-            setFormData({ ...formData, [name]: value })
+            // If switching to personality, clear production selection
+            if (name === 'category' && value === 'personality') {
+                setFormData({ ...formData, category: value, production: '' })
+            } else {
+                setFormData({ ...formData, [name]: value })
+            }
         }
     }
 
@@ -91,7 +97,6 @@ export default function MediaCreate() {
         try {
             await deleteProduction(slug)
             await fetchProductions()
-            // Clear selection if deleted production was selected
             if (formData.production) {
                 const deleted = productions.find(p => p.slug === slug)
                 if (deleted && formData.production === String(deleted.id)) {
@@ -115,6 +120,13 @@ export default function MediaCreate() {
         setIsLoading(true)
         setError({})
 
+        // Validate category is selected when images are uploaded
+        if (formData.images.length > 0 && !formData.category) {
+            setError({ category: "Please select a category for your images." })
+            setIsLoading(false)
+            return
+        }
+
         try {
             const promises = []
 
@@ -123,17 +135,19 @@ export default function MediaCreate() {
                 for (const img of formData.images) {
                     const imgData = new FormData()
                     imgData.append("image", img)
-                    if (formData.production) {
+                    imgData.append("category", formData.category)
+                    if (formData.category === 'production' && formData.production) {
                         imgData.append("production", formData.production)
                     }
                     promises.push(createMedia(imgData))
                 }
             }
 
-            // Upload YouTube URL (no production tag)
+            // Upload YouTube URL
             if (formData.youtube_url.trim()) {
                 const ytData = new FormData()
                 ytData.append("youtube_url", formData.youtube_url.trim())
+                ytData.append("category", "production") // Default for videos
                 promises.push(createMedia(ytData))
             }
 
@@ -166,7 +180,6 @@ export default function MediaCreate() {
                 <div className="mb-10 p-4 bg-gray-50 rounded-lg">
                     <h2 className="text-xl font-serif text-gray-800 mb-4">Manage Productions</h2>
 
-                    {/* Create new production */}
                     <div className="flex flex-wrap gap-2 mb-4">
                         <input
                             type="text"
@@ -193,7 +206,6 @@ export default function MediaCreate() {
                         </button>
                     </div>
 
-                    {/* List existing productions */}
                     {productions.length > 0 ? (
                         <ul className="space-y-2">
                             {productions.map(prod => (
@@ -230,7 +242,6 @@ export default function MediaCreate() {
                             Images (you may select multiple)
                         </label>
 
-                        {/* Preview grid */}
                         {previewImages.length > 0 && (
                             <div className="flex flex-wrap gap-4 mb-4">
                                 {previewImages.map((src, idx) => (
@@ -259,8 +270,44 @@ export default function MediaCreate() {
                         )}
                     </div>
 
-                    {/* Production Dropdown (for images) */}
+                    {/* Category Selection (show when images are selected) */}
                     {formData.images.length > 0 && (
+                        <div>
+                            <label className="block mb-2 text-gray-700 font-medium">
+                                Category
+                            </label>
+                            <div className="flex gap-4">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="category"
+                                        value="production"
+                                        checked={formData.category === 'production'}
+                                        onChange={handleChange}
+                                        className="w-4 h-4 text-[#C4A77D]"
+                                    />
+                                    <span className="text-gray-700">Production</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="category"
+                                        value="personality"
+                                        checked={formData.category === 'personality'}
+                                        onChange={handleChange}
+                                        className="w-4 h-4 text-[#C4A77D]"
+                                    />
+                                    <span className="text-gray-700">Personality</span>
+                                </label>
+                            </div>
+                            {error.category && (
+                                <p className="text-red-600 text-sm mt-1">{error.category}</p>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Production Dropdown (only show when category is 'production') */}
+                    {formData.images.length > 0 && formData.category === 'production' && (
                         <div>
                             <label
                                 htmlFor="production"
@@ -309,12 +356,10 @@ export default function MediaCreate() {
                         )}
                     </div>
 
-                    {/* General Error */}
                     {error.non_field_errors && (
                         <p className="text-red-600 text-sm">{error.non_field_errors}</p>
                     )}
 
-                    {/* Submit Button */}
                     <button
                         disabled={isLoading}
                         className="w-full bg-[#C4A77D] text-white py-2 rounded-md 
