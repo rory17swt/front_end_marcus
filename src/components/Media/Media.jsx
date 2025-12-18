@@ -11,16 +11,12 @@ export default function MediaList() {
   const [activeFilter, setActiveFilter] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [productionStartIndex, setProductionStartIndex] = useState(0)
-  const [personalityStartIndex, setPersonalityStartIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
-  const [isPersonalityTransitioning, setIsPersonalityTransitioning] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [selectedImage, setSelectedImage] = useState(null)
   const [showDeletePopup, setShowDeletePopup] = useState(false)
   const [mediaToDelete, setMediaToDelete] = useState(null)
 
-  const IMAGES_PER_PAGE = 8
   const { user } = useContext(UserContext)
   const navigate = useNavigate()
 
@@ -83,44 +79,7 @@ export default function MediaList() {
     setIsTransitioning(true)
     setTimeout(() => {
       setActiveFilter(slug)
-      setProductionStartIndex(0)
       setTimeout(() => setIsTransitioning(false), 50)
-    }, 400)
-  }
-
-  function handleProductionPrev() {
-    if (isTransitioning || productionStartIndex === 0) return
-    setIsTransitioning(true)
-    setTimeout(() => {
-      setProductionStartIndex(prev => Math.max(prev - IMAGES_PER_PAGE, 0))
-      setTimeout(() => setIsTransitioning(false), 50)
-    }, 400)
-  }
-
-  function handleProductionNext() {
-    if (isTransitioning || productionStartIndex + IMAGES_PER_PAGE >= filteredProductionImages.length) return
-    setIsTransitioning(true)
-    setTimeout(() => {
-      setProductionStartIndex(prev => Math.min(prev + IMAGES_PER_PAGE, filteredProductionImages.length - IMAGES_PER_PAGE))
-      setTimeout(() => setIsTransitioning(false), 50)
-    }, 400)
-  }
-
-  function handlePersonalityPrev() {
-    if (isPersonalityTransitioning || personalityStartIndex === 0) return
-    setIsPersonalityTransitioning(true)
-    setTimeout(() => {
-      setPersonalityStartIndex(prev => Math.max(prev - IMAGES_PER_PAGE, 0))
-      setTimeout(() => setIsPersonalityTransitioning(false), 50)
-    }, 400)
-  }
-
-  function handlePersonalityNext() {
-    if (isPersonalityTransitioning || personalityStartIndex + IMAGES_PER_PAGE >= personalityImages.length) return
-    setIsPersonalityTransitioning(true)
-    setTimeout(() => {
-      setPersonalityStartIndex(prev => Math.min(prev + IMAGES_PER_PAGE, personalityImages.length - IMAGES_PER_PAGE))
-      setTimeout(() => setIsPersonalityTransitioning(false), 50)
     }, 400)
   }
 
@@ -156,9 +115,6 @@ export default function MediaList() {
   const filteredProductionImages = activeFilter
     ? productionImages.filter(item => item.production_slug === activeFilter)
     : productionImages
-
-  const visibleProductionImages = filteredProductionImages.slice(productionStartIndex, productionStartIndex + IMAGES_PER_PAGE)
-  const visiblePersonalityImages = personalityImages.slice(personalityStartIndex, personalityStartIndex + IMAGES_PER_PAGE)
 
   if (loading) return <Spinner />
   if (error) return <p className="text-red-600">{error}</p>
@@ -252,34 +208,14 @@ export default function MediaList() {
                 </div>
               )}
 
-              {/* Carousel controls */}
-              <div className="flex gap-4">
-                <button
-                  onClick={handleProductionPrev}
-                  disabled={productionStartIndex === 0 || isTransitioning}
-                  className="px-4 py-2 bg-[#C4A77D] text-white rounded-lg hover:bg-[#B59770] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                >
-                  ← Previous
-                </button>
-                <button
-                  onClick={handleProductionNext}
-                  disabled={productionStartIndex + IMAGES_PER_PAGE >= filteredProductionImages.length || isTransitioning}
-                  className="px-4 py-2 bg-[#C4A77D] text-white rounded-lg hover:bg-[#B59770] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                >
-                  Next →
-                </button>
-              </div>
-
-              {/* Image grid */}
-              <div
-                className={`grid grid-cols-2 md:grid-cols-4 gap-6 transition-opacity duration-400 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
-              >
-                {visibleProductionImages.map(item => (
-                  <div key={item.id} className="relative group">
+              {/* Image masonry */}
+              <div className={`columns-2 md:columns-4 gap-4 transition-opacity duration-400 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                {filteredProductionImages.map(item => (
+                  <div key={item.id} className="relative group mb-4 break-inside-avoid">
                     <img
                       src={item.image}
                       alt="Media"
-                      className="w-full h-48 object-cover rounded-md shadow-sm transition-transform duration-300 group-hover:scale-[1.03] cursor-pointer"
+                      className="w-full rounded-md cursor-pointer transition-transform duration-300 group-hover:scale-[1.03]"
                       onClick={() => setSelectedImage(item.image)}
                     />
                     {user && (
@@ -316,59 +252,33 @@ export default function MediaList() {
           {personalityImages.length === 0 ? (
             <p className="text-gray-600">No personality photos available.</p>
           ) : (
-            <div className="space-y-6">
-
-              {/* Carousel controls */}
-              {personalityImages.length > IMAGES_PER_PAGE && (
-                <div className="flex gap-4">
-                  <button
-                    onClick={handlePersonalityPrev}
-                    disabled={personalityStartIndex === 0 || isPersonalityTransitioning}
-                    className="px-4 py-2 bg-[#C4A77D] text-white rounded-lg hover:bg-[#B59770] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  >
-                    ← Previous
-                  </button>
-                  <button
-                    onClick={handlePersonalityNext}
-                    disabled={personalityStartIndex + IMAGES_PER_PAGE >= personalityImages.length || isPersonalityTransitioning}
-                    className="px-4 py-2 bg-[#C4A77D] text-white rounded-lg hover:bg-[#B59770] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Next →
-                  </button>
+            <div className="columns-2 md:columns-4 gap-4">
+              {personalityImages.map(item => (
+                <div key={item.id} className="relative group mb-4 break-inside-avoid">
+                  <img
+                    src={item.image}
+                    alt="Media"
+                    className="w-full rounded-md cursor-pointer transition-transform duration-300 group-hover:scale-[1.03]"
+                    onClick={() => setSelectedImage(item.image)}
+                  />
+                  {user && (
+                    <div className="absolute top-2 right-2 flex gap-2 z-10">
+                      <button
+                        onClick={() => navigate(`/media/${item.id}/edit`)}
+                        className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(item.id)}
+                        className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
-
-              {/* Image grid */}
-              <div
-                className={`grid grid-cols-2 md:grid-cols-4 gap-6 transition-opacity duration-400 ease-in-out ${isPersonalityTransitioning ? 'opacity-0' : 'opacity-100'}`}
-              >
-                {visiblePersonalityImages.map(item => (
-                  <div key={item.id} className="relative group">
-                    <img
-                      src={item.image}
-                      alt="Media"
-                      className="w-full h-48 object-cover rounded-md shadow-sm transition-transform duration-300 group-hover:scale-[1.03] cursor-pointer"
-                      onClick={() => setSelectedImage(item.image)}
-                    />
-                    {user && (
-                      <div className="absolute top-2 right-2 flex gap-2 z-10">
-                        <button
-                          onClick={() => navigate(`/media/${item.id}/edit`)}
-                          className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(item.id)}
-                          className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition-colors"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
           )}
         </section>
