@@ -14,6 +14,7 @@ export default function MediaList() {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [selectedImage, setSelectedImage] = useState(null)
+  const [selectedVideo, setSelectedVideo] = useState(null)
   const [showDeletePopup, setShowDeletePopup] = useState(false)
   const [mediaToDelete, setMediaToDelete] = useState(null)
 
@@ -51,9 +52,12 @@ export default function MediaList() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') setSelectedImage(null)
+      if (e.key === 'Escape') {
+        setSelectedImage(null)
+        setSelectedVideo(null)
+      }
     }
-    if (selectedImage) {
+    if (selectedImage || selectedVideo) {
       window.addEventListener('keydown', handleKeyDown)
       document.body.style.overflow = 'hidden'
     }
@@ -61,16 +65,18 @@ export default function MediaList() {
       window.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = 'unset'
     }
-  }, [selectedImage])
+  }, [selectedImage, selectedVideo])
 
-  function getYoutubeEmbedUrl(url) {
+  function getYoutubeEmbedUrl(url, autoplay = false) {
     if (!url) return null
+    let videoId = null
     if (url.includes('watch?v=')) {
-      const videoId = url.split('watch?v=')[1].split('&')[0]
-      return `https://www.youtube.com/embed/${videoId}`
+      videoId = url.split('watch?v=')[1].split('&')[0]
     } else if (url.includes('youtu.be/')) {
-      const videoId = url.split('youtu.be/')[1].split('?')[0]
-      return `https://www.youtube.com/embed/${videoId}`
+      videoId = url.split('youtu.be/')[1].split('?')[0]
+    }
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}${autoplay ? '?autoplay=1' : ''}`
     }
     return null
   }
@@ -283,14 +289,28 @@ export default function MediaList() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {videos.map(item => (
-                <div key={item.id} className="relative">
-                  <iframe
-                    className="w-full h-56 rounded-md shadow-md"
-                    src={getYoutubeEmbedUrl(item.youtube_url)}
-                    title="YouTube video"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+                <div key={item.id} className="relative group">
+                  <div 
+                    className="relative cursor-pointer"
+                    onClick={() => setSelectedVideo(item.youtube_url)}
+                  >
+                    <iframe
+                      className="w-full h-56 rounded-md shadow-md pointer-events-none"
+                      src={getYoutubeEmbedUrl(item.youtube_url)}
+                      title="YouTube video"
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-0 hover:bg-opacity-20 transition-all rounded-md">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="bg-white bg-opacity-90 rounded-full p-3">
+                          <svg className="w-8 h-8 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   {user && (
                     <button
                       onClick={() => handleDeleteClick(item.id)}
@@ -348,6 +368,34 @@ export default function MediaList() {
             className="max-w-full max-h-full object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}
           />
+        </div>
+      )}
+
+      {/* VIDEO MODAL/LIGHTBOX */}
+      {selectedVideo && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedVideo(null)}
+        >
+          <button
+            className="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 transition-colors z-10"
+            onClick={() => setSelectedVideo(null)}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <div 
+            className="w-full max-w-4xl aspect-video"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <iframe
+              className="w-full h-full rounded-lg"
+              src={getYoutubeEmbedUrl(selectedVideo, true)}
+              title="YouTube video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
         </div>
       )}
     </div>
