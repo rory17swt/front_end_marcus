@@ -10,6 +10,7 @@ export default {
         'signature': ['Great Vibes', 'cursive'],
         'serif': ['Playfair Display', 'serif'],
         'body': ['Lora', 'serif'],
+        'source-serif': ['"Source Serif 4"', 'serif'],
       },
     },
   },

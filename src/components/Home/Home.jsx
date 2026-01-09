@@ -57,7 +57,6 @@ export default function Home() {
     }
   }, [bio, showFullBio])
 
-  // Reset slideDirection after animation
   useEffect(() => {
     if (slideDirection) {
       const timeout = setTimeout(() => setSlideDirection(null), 500)
@@ -106,27 +105,12 @@ export default function Home() {
     navigate(`/events/${eventId}/update`)
   }
 
-  function getBioPreview() {
-    if (!bio?.bio) return ''
-
-    const splitText = 'selected recordings, and latest press quotes below.'
-    const bioHTML = bio.bio
-    const splitIndex = bioHTML.indexOf(splitText)
-
-    if (splitIndex === -1) {
-      const firstParagraphEnd = bioHTML.indexOf('</p>')
-      return firstParagraphEnd !== -1 ? bioHTML.substring(0, firstParagraphEnd + 4) : bioHTML
-    }
-
-    return bioHTML.substring(0, splitIndex + splitText.length)
-  }
-
   if (loading) return <Spinner />
   if (error) return <p className="text-red-600">{error}</p>
 
   return (
     <div className="min-h-screen bg-[#E8DCC8] px-0">
-      {/* ✅ Full-width Cover Photo */}
+      {/* Full-width Cover Photo */}
       <section className="relative w-full h-[110vh] overflow-hidden bg-black">
         <img
           src="/Home page.jpg"
@@ -188,39 +172,50 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ✅ Main White Content Box */}
+      {/* Main White Content Box */}
       <div className="w-full max-w-[calc(100%-6rem)] mx-auto bg-white shadow-lg pb-0">
+
         {/* Biography Section */}
-        <section className="pt-10 px-4 md:px-10 mb-10 font-body">
+        <section className="pt-12 px-6 md:px-16 lg:px-24 mb-12">
           {bio?.bio && (
-            <>
+            <div className="max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto">
               <div
                 ref={bioRef}
-                className="prose prose-lg max-w-none mb-4 text-gray-700 leading-relaxed overflow-hidden transition-all duration-500 ease-in-out"
-                style={{ maxHeight: showFullBio ? `${bioHeight}px` : '150px' }}
+                className="font-source-serif text-[17px] leading-[1.65] text-[#1f1f1f] overflow-hidden transition-all duration-500 ease-in-out
+                           [&>h1]:font-serif [&>h1]:text-4xl [&>h1]:font-semibold [&>h1]:tracking-wide [&>h1]:mb-4 [&>h1]:text-[#2c2c2c]
+                           [&>h2]:font-serif [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:tracking-wide [&>h2]:mb-3 [&>h2]:mt-6 [&>h2]:text-[#2c2c2c]
+                           [&>p]:mb-5 [&>p]:max-w-[70ch]
+                           [&_em]:italic [&_strong]:font-medium"
+                style={{ maxHeight: showFullBio ? `${bioHeight}px` : '180px' }}
                 dangerouslySetInnerHTML={{ __html: bio.bio }}
               />
-              {bio.bio.includes('selected recordings, and latest press quotes below.') && (
-                <button
-                  onClick={() => setShowFullBio(prev => !prev)}
-                  className="mt-2 mb-6 px-6 py-2 bg-[#C4A77D] text-white rounded hover:bg-[#B59770] transition-colors font-body"
-                >
-                  {showFullBio ? 'Read Less' : 'Read More'}
-                </button>
-              )}
-            </>
+
+              <div className="flex items-center gap-6 mt-8">
+                {bio.bio.includes('selected recordings, and latest press quotes below.') && (
+                  <button
+                    onClick={() => setShowFullBio(prev => !prev)}
+                    className="px-8 py-3 bg-[#C4A77D] text-white font-source-serif text-sm tracking-wide rounded-sm hover:bg-[#B59770] transition-colors"
+                  >
+                    {showFullBio ? 'Read Less' : 'Read More'}
+                  </button>
+                )}
+
+                {bio?.cv && (
+                  <a
+                    href={bio.cv}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-source-serif text-[#C4A77D] hover:text-[#B59770] underline underline-offset-4 decoration-1 transition-colors"
+                  >
+                    View CV
+                  </a>
+                )}
+              </div>
+            </div>
           )}
-          {bio?.cv ? (
-            <a
-              href={bio.cv}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block mt-4 ml-8 text-[#C4A77D] hover:text-[#B59770] hover:underline font-body"
-            >
-              View CV
-            </a>
-          ) : (
-            <p className="mt-4 ml-8 text-gray-600">CV not available.</p>
+
+          {!bio?.bio && (
+            <p className="max-w-4xl mx-auto text-gray-500 font-source-serif">Bio not available.</p>
           )}
         </section>
 
@@ -230,7 +225,6 @@ export default function Home() {
             <p className="text-gray-600 text-center">No upcoming events</p>
           ) : (
             <div className="flex items-center gap-2 max-w-full mx-auto overflow-visible">
-              {/* Prev Button */}
               {events.length > EVENTS_PER_PAGE && (
                 <button
                   onClick={handlePrev}
@@ -241,7 +235,6 @@ export default function Home() {
                 </button>
               )}
 
-              {/* Carousel Container */}
               <div className="relative overflow-hidden flex-1">
                 <div
                   className="flex transition-transform duration-500 ease-in-out"
@@ -254,7 +247,6 @@ export default function Home() {
                       key={event.id}
                       className="flex-shrink-0 w-[calc((100%-3*1rem)/4)] px-2"
                     >
-                      {/* Outer wrapper prevents clipping */}
                       <div className="relative">
                         <div className="transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl rounded-lg">
                           <div className="border border-gray-300 rounded-lg bg-white relative overflow-visible">
@@ -309,7 +301,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Next Button */}
               {events.length > EVENTS_PER_PAGE && (
                 <button
                   onClick={handleNext}
