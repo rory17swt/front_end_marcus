@@ -7,6 +7,7 @@ import Underline from '@tiptap/extension-underline'
 import { Extension } from '@tiptap/core'
 import { useNavigate } from 'react-router'
 import { getAuthBio, updateBio } from '../../services/bio'
+import { supabase } from '../../services/supabase'
 import Spinner from '../Spinner/Spinner'
 
 // Custom Line Height Extension
@@ -98,24 +99,51 @@ export default function BioForm() {
     setCvFile(e.target.files[0])
   }
 
+  const uploadCvToSupabase = async (file) => {
+    const fileName = `${Date.now()}_${file.name}`
+    
+    const { data, error } = await supabase.storage
+      .from('cv')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: true
+      })
+
+    if (error) {
+      throw new Error('Failed to upload CV: ' + error.message)
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('cv')
+      .getPublicUrl(fileName)
+
+    return urlData.publicUrl
+  }
+
   const handleSave = async () => {
     if (!editor) return
     setIsSaving(true)
     setError(null)
 
     try {
-      const formData = new FormData()
-      formData.append('bio', editor.getHTML())
+      let cvUrl = null
 
+      // Upload CV to Supabase if a new file was selected
       if (cvFile) {
-        formData.append('cv', cvFile)
+        cvUrl = await uploadCvToSupabase(cvFile)
       }
 
-      await updateBio(formData)
+      // Send data to backend
+      const payload = { bio: editor.getHTML() }
+      if (cvUrl) {
+        payload.cv = cvUrl
+      }
+
+      await updateBio(payload)
       setCvFile(null)
       navigate('/')
     } catch (err) {
-      setError('Failed to save bio and CV')
+      setError(err.message || 'Failed to save bio and CV')
     } finally {
       setIsSaving(false)
     }
@@ -217,6 +245,9 @@ export default function BioForm() {
             onChange={handleCvChange}
             className="block mt-2"
           />
+          {cvFile && (
+            <p className="text-sm text-green-600 mt-1">Selected: {cvFile.name}</p>
+          )}
         </div>
 
         {error && <p className="text-red-600 mt-4">{error}</p>}

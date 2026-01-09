@@ -5,7 +5,9 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 // Headers
 const authHeaders = () => ({
-    headers: { Authorization: `Bearer ${getToken()}`,
+    headers: { 
+        Authorization: `Bearer ${getToken()}`,
+        'Content-Type': 'application/json',
     },
 })
 

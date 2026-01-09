@@ -12,6 +12,7 @@
     "heroku-postbuild": "npm run build"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.90.1",
     "@tiptap/extension-color": "^3.6.5",
     "@tiptap/extension-font-family": "^3.7.0",
     "@tiptap/extension-highlight": "^3.7.0",
