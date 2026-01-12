@@ -31,5 +31,5 @@ export const getUserFromToken = () => {
         console.log('Token removed')
         return null
     }
-    return payloadAsObject.user
+    return payloadAsObject.user_id
 }
