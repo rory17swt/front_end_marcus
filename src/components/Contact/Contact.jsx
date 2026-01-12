@@ -181,7 +181,7 @@ export default function Contact() {
             {showFailedPopup && (
                 <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-100 border border-red-400 p-6 rounded-lg shadow-lg z-50 max-w-xl text-center">
                     <p className="text-red-800 font-semibold mb-4">
-                        Message Failed. Something went wrong and your message wasn't sent. Please try again later or email Marcus at marcus@swietlicki.eu.
+                        Message Failed. Something went wrong and your message wasn't sent. Please try again later or email Marcus at tenor@swietlicki.eu.
                     </p>
                     <button
                         onClick={() => setShowFailedPopup(false)}
