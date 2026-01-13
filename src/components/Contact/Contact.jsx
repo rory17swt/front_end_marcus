@@ -161,8 +161,8 @@ export default function Contact() {
 
             {/* Success Popup */}
             {showSuccessPopup && (
-                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#F5EFE7] border border-[#C4A77D] p-6 rounded-lg shadow-lg z-50 max-w-xl text-center">
-                    <p className="text-gray-800 font-semibold mb-4">
+                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#F5EFE7] border border-[#C4A77D] p-4 md:p-6 rounded-lg shadow-lg z-50 max-w-[90%] md:max-w-xl text-center">
+                    <p className="text-gray-800 font-semibold mb-4 text-sm md:text-base">
                         Thanks for reaching out! Your message has been sent and Marcus will get back to you soon.
                     </p>
                     <button
@@ -170,7 +170,7 @@ export default function Contact() {
                             setShowSuccessPopup(false);
                             navigate('/');
                         }}
-                        className="bg-[#C4A77D] text-white px-4 py-2 rounded-md hover:bg-[#B59770]"
+                        className="bg-[#C4A77D] text-white px-4 py-2 rounded-md hover:bg-[#B59770] text-sm md:text-base"
                     >
                         Close
                     </button>
@@ -179,13 +179,13 @@ export default function Contact() {
 
             {/* Failed Popup */}
             {showFailedPopup && (
-                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-100 border border-red-400 p-6 rounded-lg shadow-lg z-50 max-w-xl text-center">
-                    <p className="text-red-800 font-semibold mb-4">
+                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-100 border border-red-400 p-4 md:p-6 rounded-lg shadow-lg z-50 max-w-[90%] md:max-w-xl text-center">
+                    <p className="text-red-800 font-semibold mb-4 text-sm md:text-base">
                         Message Failed. Something went wrong and your message wasn't sent. Please try again later or email Marcus at tenor@swietlicki.eu.
                     </p>
                     <button
                         onClick={() => setShowFailedPopup(false)}
-                        className="bg-red-800 text-white px-4 py-2 rounded-md hover:bg-red-900"
+                        className="bg-red-800 text-white px-4 py-2 rounded-md hover:bg-red-900 text-sm md:text-base"
                     >
                         Close
                     </button>
