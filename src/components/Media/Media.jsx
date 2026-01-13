@@ -129,7 +129,7 @@ export default function MediaList() {
     <div className="min-h-screen bg-[#E8DCC8] px-0">
 
       {/* COVER PHOTO */}
-      <section className="relative w-full h-[110vh] overflow-hidden bg-black">
+      <section className="relative w-full h-[70vh] md:h-[110vh] overflow-hidden bg-black">
         <img
           src="/Media Front Photo.jpg"
           alt="Media"
@@ -150,11 +150,7 @@ export default function MediaList() {
             }}
           />
           <h1
-            className="text-6xl md:text-9xl font-serif uppercase text-white drop-shadow-[4px_4px_15px_rgba(0,0,0,0.8)]"
-            style={{
-              letterSpacing: "1em",
-              paddingLeft: "1em"
-            }}
+            className="text-4xl md:text-9xl font-serif uppercase text-white drop-shadow-[4px_4px_15px_rgba(0,0,0,0.8)] tracking-[0.3em] md:tracking-[1em] md:pl-[1em]"
           >
             MEDIA
           </h1>
@@ -176,16 +172,16 @@ export default function MediaList() {
       </section>
 
       {/* MAIN CONTAINER */}
-      <div className="w-full max-w-[calc(100%-6rem)] mx-auto bg-white shadow-lg pb-0">
+      <div className="w-full max-w-[calc(100%-1rem)] md:max-w-[calc(100%-6rem)] mx-auto bg-white shadow-lg pb-0">
 
         {/* ---------------- PRODUCTION PHOTOS ---------------- */}
-        <section className="pt-10 px-4 md:px-10 pb-10">
-          <h2 className="text-3xl font-serif text-gray-800 mb-6">Productions</h2>
+        <section className="pt-6 md:pt-10 px-3 md:px-10 pb-6 md:pb-10">
+          <h2 className="text-2xl md:text-3xl font-serif text-gray-800 mb-4 md:mb-6">Productions</h2>
 
           {productionImages.length === 0 ? (
             <p className="text-gray-600">No production photos available.</p>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
 
               {/* Production Filter Dropdown */}
               {productions.length > 0 && (
@@ -193,7 +189,7 @@ export default function MediaList() {
                   <select
                     value={activeFilter || ''}
                     onChange={(e) => handleFilterChange(e.target.value || null)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-0 hover:bg-gray-100 transition-colors cursor-pointer"
+                    className="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-0 hover:bg-gray-100 transition-colors cursor-pointer"
                   >
                     <option value="">All Productions</option>
                     {productions.map(prod => (
@@ -206,9 +202,9 @@ export default function MediaList() {
               )}
 
               {/* Image masonry */}
-              <div className={`columns-2 md:columns-4 gap-4 transition-opacity duration-400 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+              <div className={`columns-2 md:columns-4 gap-2 md:gap-4 transition-opacity duration-400 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
                 {filteredProductionImages.map(item => (
-                  <div key={item.id} className="relative group mb-4 break-inside-avoid">
+                  <div key={item.id} className="relative group mb-2 md:mb-4 break-inside-avoid">
                     <img
                       src={item.image}
                       alt="Media"
@@ -216,16 +212,16 @@ export default function MediaList() {
                       onClick={() => setSelectedImage(item.image)}
                     />
                     {user && (
-                      <div className="absolute top-2 right-2 flex gap-2 z-10">
+                      <div className="absolute top-1 right-1 md:top-2 md:right-2 flex gap-1 md:gap-2 z-10">
                         <button
                           onClick={() => navigate(`/media/${item.id}/edit`)}
-                          className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                          className="bg-blue-500 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs hover:bg-blue-600 transition-colors"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDeleteClick(item.id)}
-                          className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition-colors"
+                          className="bg-red-500 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs hover:bg-red-600 transition-colors"
                         >
                           Delete
                         </button>
@@ -243,15 +239,15 @@ export default function MediaList() {
         </section>
 
         {/* ---------------- PERSONALITY PHOTOS ---------------- */}
-        <section className="px-4 md:px-10 pb-10">
-          <h2 className="text-3xl font-serif text-gray-800 mb-6">Personality</h2>
+        <section className="px-3 md:px-10 pb-6 md:pb-10">
+          <h2 className="text-2xl md:text-3xl font-serif text-gray-800 mb-4 md:mb-6">Personality</h2>
 
           {personalityImages.length === 0 ? (
             <p className="text-gray-600">No personality photos available.</p>
           ) : (
-            <div className="columns-2 md:columns-4 gap-4">
+            <div className="columns-2 md:columns-4 gap-2 md:gap-4">
               {personalityImages.map(item => (
-                <div key={item.id} className="relative group mb-4 break-inside-avoid">
+                <div key={item.id} className="relative group mb-2 md:mb-4 break-inside-avoid">
                   <img
                     src={item.image}
                     alt="Media"
@@ -259,16 +255,16 @@ export default function MediaList() {
                     onClick={() => setSelectedImage(item.image)}
                   />
                   {user && (
-                    <div className="absolute top-2 right-2 flex gap-2 z-10">
+                    <div className="absolute top-1 right-1 md:top-2 md:right-2 flex gap-1 md:gap-2 z-10">
                       <button
                         onClick={() => navigate(`/media/${item.id}/edit`)}
-                        className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                        className="bg-blue-500 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs hover:bg-blue-600 transition-colors"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDeleteClick(item.id)}
-                        className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition-colors"
+                        className="bg-red-500 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs hover:bg-red-600 transition-colors"
                       >
                         Delete
                       </button>
@@ -281,13 +277,13 @@ export default function MediaList() {
         </section>
 
         {/* ---------------- VIDEOS ---------------- */}
-        <section className="px-4 md:px-10 pb-10">
-          <h2 className="text-3xl font-serif text-gray-800 mb-6">Videos</h2>
+        <section className="px-3 md:px-10 pb-6 md:pb-10">
+          <h2 className="text-2xl md:text-3xl font-serif text-gray-800 mb-4 md:mb-6">Videos</h2>
 
           {videos.length === 0 ? (
             <p className="text-gray-600">No videos available.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
               {videos.map(item => (
                 <div key={item.id} className="relative group">
                   <div 
@@ -295,7 +291,7 @@ export default function MediaList() {
                     onClick={() => setSelectedVideo(item.youtube_url)}
                   >
                     <iframe
-                      className="w-full h-56 rounded-md shadow-md pointer-events-none"
+                      className="w-full h-48 md:h-56 rounded-md shadow-md pointer-events-none"
                       src={getYoutubeEmbedUrl(item.youtube_url)}
                       title="YouTube video"
                       allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -314,7 +310,7 @@ export default function MediaList() {
                   {user && (
                     <button
                       onClick={() => handleDeleteClick(item.id)}
-                      className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition-colors z-10"
+                      className="absolute top-1 right-1 md:top-2 md:right-2 bg-red-500 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs hover:bg-red-600 transition-colors z-10"
                     >
                       Delete
                     </button>
@@ -328,20 +324,20 @@ export default function MediaList() {
 
       {/* Delete Confirmation Popup */}
       {showDeletePopup && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#F5EFE7] border border-[#C4A77D] p-6 rounded-lg shadow-lg z-50 max-w-xl text-center">
-          <p className="text-gray-800 font-semibold mb-4">
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#F5EFE7] border border-[#C4A77D] p-4 md:p-6 rounded-lg shadow-lg z-50 max-w-[90%] md:max-w-xl text-center">
+          <p className="text-gray-800 font-semibold mb-4 text-sm md:text-base">
             Are you sure you want to delete this media?
           </p>
           <div className="flex gap-4 justify-center">
             <button
               onClick={cancelDelete}
-              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+              className="bg-gray-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md hover:bg-gray-600 text-sm md:text-base"
             >
               Cancel
             </button>
             <button
               onClick={confirmDelete}
-              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+              className="bg-red-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md hover:bg-red-600 text-sm md:text-base"
             >
               Delete
             </button>
@@ -352,7 +348,7 @@ export default function MediaList() {
       {/* IMAGE MODAL/LIGHTBOX */}
       {selectedImage && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-2 md:p-4"
           onClick={() => setSelectedImage(null)}
         >
           <button
@@ -374,7 +370,7 @@ export default function MediaList() {
       {/* VIDEO MODAL/LIGHTBOX */}
       {selectedVideo && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-2 md:p-4"
           onClick={() => setSelectedVideo(null)}
         >
           <button
