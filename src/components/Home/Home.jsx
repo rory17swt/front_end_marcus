@@ -173,7 +173,7 @@ export default function Home() {
       </section>
 
       {/* Main White Content Box */}
-      <div className="w-full max-w-[calc(100%-6rem)] mx-auto bg-white shadow-lg pb-0">
+      <div className="w-full max-w-[calc(100%-1rem)] md:max-w-[calc(100%-6rem)] mx-auto bg-white shadow-lg pb-0">
 
         {/* Biography Section */}
         <section className="pt-12 px-6 md:px-16 lg:px-24 mb-12">
@@ -245,7 +245,7 @@ export default function Home() {
                   {events.map(event => (
                     <div
                       key={event.id}
-                      className="flex-shrink-0 w-[calc((100%-3*1rem)/4)] px-2"
+                      className="flex-shrink-0 w-full md:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3*1rem)/4)] px-2"
                     >
                       <div className="relative">
                         <div className="transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl rounded-lg">

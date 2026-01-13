@@ -6,7 +6,6 @@ export default function Footer() {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    // Delay footer appearance
     const timer = setTimeout(() => {
       setIsVisible(true)
     }, 1500)
@@ -17,9 +16,9 @@ export default function Footer() {
   if (!isVisible) return null
 
   return (
-    <footer className="flex justify-between items-center px-10 py-5 bg-[#F5F1E8] border-t border-[#E0D5C7]">
+    <footer className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-0 px-6 md:px-10 py-6 md:py-5 bg-[#F5F1E8] border-t border-[#E0D5C7]">
       {/* Left - Name & Admin Login */}
-      <div>
+      <div className="text-center md:text-left">
         <h3 className="m-0 text-lg text-gray-800 font-semibold">Marcus Swietlicki</h3>
         <NavLink 
           to='/adminLogin' 
@@ -30,7 +29,7 @@ export default function Footer() {
       </div>
 
       {/* Middle - Social Icons */}
-      <div className="flex gap-5">
+      <div className="flex gap-5 order-first md:order-none">
         <a
           href="https://www.instagram.com/marcusswietlicki_tenor/?hl=en"
           target="_blank"
@@ -52,7 +51,7 @@ export default function Footer() {
       </div>
 
       {/* Right - Copyright Info */}
-      <div className="text-right text-xs leading-relaxed text-gray-800">
+      <div className="text-center md:text-right text-[10px] md:text-xs leading-relaxed text-gray-800">
         <p className="m-0">MARCUS SWIETLICKI © 2025. ALL RIGHTS RESERVED.</p>
         <p className="m-0">PHOTOGRAPHY BY KIM HARDY PHOTOGRAPHY.</p>
         <p className="m-0">WEBSITE CREATED BY RORY'S DEVELOPMENT STUDIOS.</p>
