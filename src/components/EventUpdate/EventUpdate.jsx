@@ -7,7 +7,8 @@ export default function EventUpdate() {
     const { user } = useContext(UserContext)
     const [formData, setFormData] = useState({
         title: '',
-        datetime: '',
+        date: '',
+        time: '',
         location: '',
         event_url: '',
         image: ''
@@ -17,12 +18,6 @@ export default function EventUpdate() {
     const [previewImage, setPreviewImage] = useState(null)
     const { eventId } = useParams()
     const navigate = useNavigate()
-
-    function formatForDatetimeLocal(datetimeStr) {
-        const date = new Date(datetimeStr)
-        const timezoneOffsetMs = date.getTimezoneOffset() * 60000
-        return new Date(date.getTime() - timezoneOffsetMs).toISOString().slice(0, 16)
-    }
 
     function handleChange({ target: { name, value, type, files } }) {
         if (type === 'file') {
@@ -40,7 +35,13 @@ export default function EventUpdate() {
         event.preventDefault()
         setIsLoading(true)
         try {
-            await updateEvent(eventId, formData)
+            const submitData = {
+                ...formData,
+                datetime: `${formData.date}T${formData.time}`
+            }
+            delete submitData.date
+            delete submitData.time
+            await updateEvent(eventId, submitData)
             navigate('/')
         } catch (error) {
             setError(error.response?.data || {})
@@ -54,9 +55,15 @@ export default function EventUpdate() {
             setIsLoading(true)
             try {
                 const { data } = await getSingleEvent(eventId)
+                const dateObj = new Date(data.datetime)
+                const date = dateObj.toISOString().slice(0, 10)
+                const hours = dateObj.getHours().toString().padStart(2, '0')
+                const minutes = dateObj.getMinutes().toString().padStart(2, '0')
+
                 setFormData({
                     title: data.title,
-                    datetime: formatForDatetimeLocal(data.datetime),
+                    date: date,
+                    time: `${hours}:${minutes}`,
                     location: data.location,
                     event_url: data.event_url,
                     image: data.image
@@ -95,19 +102,44 @@ export default function EventUpdate() {
                         {error.title && <p className="text-red-500 text-sm mt-1">{error.title}</p>}
                     </div>
 
-                    {/* Date & Time */}
+                    {/* Date */}
                     <div>
-                        <label htmlFor="datetime" className="block text-gray-700 font-medium mb-1">Date & Time</label>
+                        <label htmlFor="date" className="block text-gray-700 font-medium mb-1">Date</label>
                         <input
-                            type="datetime-local"
-                            id="datetime"
-                            name="datetime"
-                            value={formData.datetime}
+                            type="date"
+                            id="date"
+                            name="date"
+                            value={formData.date}
                             onChange={handleChange}
                             required
                             className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-gold focus:outline-none"
                         />
-                        {error.datetime && <p className="text-red-500 text-sm mt-1">{error.datetime}</p>}
+                        {error.date && <p className="text-red-500 text-sm mt-1">{error.date}</p>}
+                    </div>
+
+                    {/* Time */}
+                    <div>
+                        <label htmlFor="time" className="block text-gray-700 font-medium mb-1">Time</label>
+                        <select
+                            id="time"
+                            name="time"
+                            value={formData.time}
+                            onChange={handleChange}
+                            required
+                            className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-gold focus:outline-none"
+                        >
+                            <option value="">Select time</option>
+                            {Array.from({ length: 24 * 4 }, (_, i) => {
+                                const hours = Math.floor(i / 4).toString().padStart(2, '0')
+                                const minutes = ((i % 4) * 15).toString().padStart(2, '0')
+                                return (
+                                    <option key={i} value={`${hours}:${minutes}`}>
+                                        {hours}:{minutes}
+                                    </option>
+                                )
+                            })}
+                        </select>
+                        {error.time && <p className="text-red-500 text-sm mt-1">{error.time}</p>}
                     </div>
 
                     {/* Location */}

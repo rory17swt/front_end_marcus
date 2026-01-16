@@ -8,7 +8,8 @@ export default function EventCreate() {
 
     const [formData, setFormData] = useState({
         title: '',
-        datetime: '',
+        date: '',
+        time: '',
         location: '',
         event_url: '',
         image: ''
@@ -42,7 +43,13 @@ export default function EventCreate() {
         event.preventDefault()
         setIsLoading(true)
         try {
-            await createEvent(formData)
+            const submitData = {
+                ...formData,
+                datetime: `${formData.date}T${formData.time}`
+            }
+            delete submitData.date
+            delete submitData.time
+            await createEvent(submitData)
             navigate('/')
         } catch (error) {
             setError(error.response?.data || {})
@@ -82,25 +89,56 @@ export default function EventCreate() {
                         {error.title && <p className="text-red-600 text-sm">{error.title}</p>}
                     </div>
 
-                    {/* Date & Time */}
+                    {/* Date */}
                     <div>
                         <label
-                            htmlFor="datetime"
+                            htmlFor="date"
                             className="block mb-1 text-gray-700 font-medium"
                         >
-                            Date & Time
+                            Date
                         </label>
                         <input
-                            type="datetime-local"
-                            id="datetime"
-                            name="datetime"
-                            value={formData.datetime}
+                            type="date"
+                            id="date"
+                            name="date"
+                            value={formData.date}
                             onChange={handleChange}
                             required
                             className="w-full border border-gray-300 rounded-md px-4 py-2 
-                         focus:outline-none focus:border-[#C4A77D] transition-colors"
+     focus:outline-none focus:border-[#C4A77D] transition-colors"
                         />
-                        {error.datetime && <p className="text-red-600 text-sm">{error.datetime}</p>}
+                        {error.date && <p className="text-red-600 text-sm">{error.date}</p>}
+                    </div>
+
+                    {/* Time */}
+                    <div>
+                        <label
+                            htmlFor="time"
+                            className="block mb-1 text-gray-700 font-medium"
+                        >
+                            Time
+                        </label>
+                        <select
+                            id="time"
+                            name="time"
+                            value={formData.time}
+                            onChange={handleChange}
+                            required
+                            className="w-full border border-gray-300 rounded-md px-4 py-2 
+     focus:outline-none focus:border-[#C4A77D] transition-colors"
+                        >
+                            <option value="">Select time</option>
+                            {Array.from({ length: 24 * 4 }, (_, i) => {
+                                const hours = Math.floor(i / 4).toString().padStart(2, '0')
+                                const minutes = ((i % 4) * 15).toString().padStart(2, '0')
+                                return (
+                                    <option key={i} value={`${hours}:${minutes}`}>
+                                        {hours}:{minutes}
+                                    </option>
+                                )
+                            })}
+                        </select>
+                        {error.time && <p className="text-red-600 text-sm">{error.time}</p>}
                     </div>
 
                     {/* Location */}
