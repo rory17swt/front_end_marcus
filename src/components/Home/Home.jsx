@@ -105,6 +105,10 @@ export default function Home() {
     navigate(`/events/${eventId}/update`)
   }
 
+  // Calculate pages for mobile view
+  const totalPages = Math.ceil(events.length / EVENTS_PER_PAGE)
+  const currentPage = Math.floor(startIndex / EVENTS_PER_PAGE)
+
   if (loading) return <Spinner />
   if (error) return <p className="text-red-600">{error}</p>
 
@@ -224,18 +228,113 @@ export default function Home() {
           {events.length === 0 ? (
             <p className="text-gray-600 text-center">No upcoming events</p>
           ) : (
-            <div className="flex items-center gap-2 max-w-full mx-auto overflow-visible">
+            <div className="flex flex-col md:flex-row md:items-center gap-2 max-w-full mx-auto overflow-visible">
               {events.length > EVENTS_PER_PAGE && (
                 <button
                   onClick={handlePrev}
                   disabled={startIndex === 0}
-                  className="px-4 py-2 bg-[#C4A77D] text-white rounded hover:bg-[#B59770] disabled:opacity-40 transition-colors flex-shrink-0 text-xl shadow-md"
+                  className="hidden md:block px-4 py-2 bg-[#C4A77D] text-white rounded hover:bg-[#B59770] disabled:opacity-40 transition-colors flex-shrink-0 text-xl shadow-md"
                 >
                   ←
                 </button>
               )}
 
-              <div className="relative overflow-hidden flex-1">
+              {/* Mobile: 2x2 grid with slide animation */}
+              <div className="md:hidden overflow-hidden">
+                <div
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{
+                    transform: `translateX(-${currentPage * 100}%)`,
+                  }}
+                >
+                  {Array.from({ length: totalPages }).map((_, pageIndex) => {
+                    const pageEvents = events.slice(
+                      pageIndex * EVENTS_PER_PAGE,
+                      (pageIndex + 1) * EVENTS_PER_PAGE
+                    )
+                    return (
+                      <div key={pageIndex} className="flex-shrink-0 w-full">
+                        <div className="grid grid-cols-2 gap-2">
+                          {pageEvents.map(event => (
+                            <div key={event.id} className="relative">
+                              <div className="transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl rounded-lg">
+                                <div className="border border-gray-300 rounded-lg bg-white relative overflow-visible">
+                                  <a
+                                    href={event.event_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block relative no-underline"
+                                  >
+                                    <img
+                                      src={event.image}
+                                      alt={event.title}
+                                      className="w-full h-36 object-cover rounded-t-lg"
+                                    />
+                                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg">
+                                      <h3 className="text-xs font-serif font-semibold line-clamp-1">{event.title}</h3>
+                                      <p className="text-[10px] font-body">
+                                        {new Date(event.datetime).toLocaleString(undefined, {
+                                          dateStyle: 'short',
+                                          timeStyle: 'short',
+                                        })}
+                                      </p>
+                                      <p className="text-[10px] font-body line-clamp-1">{event.location}</p>
+                                    </div>
+                                  </a>
+
+                                  {user && (
+                                    <>
+                                      <button
+                                        onClick={() => handleDeleteClick(event.id)}
+                                        disabled={deletingId === event.id}
+                                        className="absolute top-1 right-1 bg-red-500 text-white px-1.5 py-0.5 rounded text-[10px] hover:bg-red-600 disabled:opacity-50 transition-colors z-10"
+                                        aria-label={`Delete ${event.title}`}
+                                      >
+                                        {deletingId === event.id ? '...' : 'X'}
+                                      </button>
+
+                                      <button
+                                        onClick={() => handleUpdate(event.id)}
+                                        className="absolute top-7 right-1 bg-blue-500 text-white px-1.5 py-0.5 rounded text-[10px] hover:bg-blue-600 transition-colors z-10"
+                                        aria-label={`Update ${event.title}`}
+                                      >
+                                        Edit
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Mobile pagination buttons */}
+                {events.length > EVENTS_PER_PAGE && (
+                  <div className="flex justify-center gap-4 mt-4">
+                    <button
+                      onClick={handlePrev}
+                      disabled={startIndex === 0}
+                      className="px-4 py-2 bg-[#C4A77D] text-white rounded hover:bg-[#B59770] disabled:opacity-40 transition-colors text-sm shadow-md"
+                    >
+                      ← Prev
+                    </button>
+                    <button
+                      onClick={handleNext}
+                      disabled={startIndex + EVENTS_PER_PAGE >= events.length}
+                      className="px-4 py-2 bg-[#C4A77D] text-white rounded hover:bg-[#B59770] disabled:opacity-40 transition-colors text-sm shadow-md"
+                    >
+                      Next →
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Tablet/Desktop: horizontal carousel */}
+              <div className="relative overflow-hidden flex-1 hidden md:block">
                 <div
                   className="flex transition-transform duration-500 ease-in-out"
                   style={{
@@ -245,7 +344,7 @@ export default function Home() {
                   {events.map(event => (
                     <div
                       key={event.id}
-                      className="flex-shrink-0 w-full md:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-3*1rem)/4)] px-2"
+                      className="flex-shrink-0 w-[31%] lg:w-[calc((100%-3*1rem)/4)] px-2"
                     >
                       <div className="relative">
                         <div className="transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-xl rounded-lg">
@@ -259,17 +358,17 @@ export default function Home() {
                               <img
                                 src={event.image}
                                 alt={event.title}
-                                className="w-full h-72 md:h-80 object-cover rounded-t-lg"
+                                className="w-full h-56 lg:h-72 object-cover rounded-t-lg"
                               />
-                              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4 rounded-b-lg">
-                                <h3 className="text-base md:text-lg font-serif font-semibold">{event.title}</h3>
-                                <p className="text-sm md:text-base font-body">
+                              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-3 lg:p-4 rounded-b-lg min-h-24 lg:min-h-28">
+                                <h3 className="text-sm lg:text-lg font-serif font-semibold line-clamp-2">{event.title}</h3>
+                                <p className="text-xs lg:text-base font-body">
                                   {new Date(event.datetime).toLocaleString(undefined, {
                                     dateStyle: 'medium',
                                     timeStyle: 'short',
                                   })}
                                 </p>
-                                <p className="text-sm md:text-base font-body">{event.location}</p>
+                                <p className="text-xs lg:text-base font-body">{event.location}</p>
                               </div>
                             </a>
 
@@ -305,7 +404,7 @@ export default function Home() {
                 <button
                   onClick={handleNext}
                   disabled={startIndex + EVENTS_PER_PAGE >= events.length}
-                  className="px-4 py-2 bg-[#C4A77D] text-white rounded hover:bg-[#B59770] disabled:opacity-40 transition-colors flex-shrink-0 text-xl shadow-md"
+                  className="hidden md:block px-4 py-2 bg-[#C4A77D] text-white rounded hover:bg-[#B59770] disabled:opacity-40 transition-colors flex-shrink-0 text-xl shadow-md"
                 >
                   →
                 </button>
