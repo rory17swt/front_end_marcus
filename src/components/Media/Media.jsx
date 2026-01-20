@@ -150,7 +150,7 @@ export default function MediaList() {
             }}
           />
           <h1
-            className="text-4xl md:text-9xl font-serif uppercase text-white drop-shadow-[4px_4px_15px_rgba(0,0,0,0.8)] tracking-[0.3em] md:tracking-[1em] md:pl-[1em]"
+            className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-serif uppercase text-white drop-shadow-[4px_4px_15px_rgba(0,0,0,0.8)] tracking-[0.2em] md:tracking-[0.3em] lg:tracking-[0.5em] xl:tracking-[1em] xl:pl-[1em]"
           >
             MEDIA
           </h1>
@@ -286,7 +286,7 @@ export default function MediaList() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
               {videos.map(item => (
                 <div key={item.id} className="relative group">
-                  <div 
+                  <div
                     className="relative cursor-pointer"
                     onClick={() => setSelectedVideo(item.youtube_url)}
                   >
@@ -301,7 +301,7 @@ export default function MediaList() {
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="bg-white bg-opacity-90 rounded-full p-3">
                           <svg className="w-8 h-8 text-gray-800" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
+                            <path d="M8 5v14l11-7z" />
                           </svg>
                         </div>
                       </div>
@@ -380,7 +380,7 @@ export default function MediaList() {
           >
             ×
           </button>
-          <div 
+          <div
             className="w-full max-w-4xl aspect-video"
             onClick={(e) => e.stopPropagation()}
           >
