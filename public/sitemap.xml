@@ -2,14 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://tenor.swietlicki.eu/</loc>
+    <lastmod>2026-02-17</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://tenor.swietlicki.eu/media</loc>
+    <lastmod>2026-02-17</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://tenor.swietlicki.eu/contact</loc>
+    <lastmod>2026-02-17</lastmod>
     <priority>0.7</priority>
   </url>
 </urlset>
+```
+
+**3. Redirect the Netlify subdomain to the custom domain** — add this to a `_redirects` file or update your existing one to include:
+```
+https://marcusportfoliosite.netlify.app/* https://tenor.swietlicki.eu/:splat 301!
+/*    /index.html   200
