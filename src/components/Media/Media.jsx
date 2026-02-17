@@ -13,7 +13,9 @@ export default function MediaList() {
   const [error, setError] = useState(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [scrollY, setScrollY] = useState(0)
-  const [selectedImage, setSelectedImage] = useState(null)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null)
+  const [selectedImageList, setSelectedImageList] = useState([])
+  const [touchStart, setTouchStart] = useState(null)
   const [selectedVideo, setSelectedVideo] = useState(null)
   const [showDeletePopup, setShowDeletePopup] = useState(false)
   const [mediaToDelete, setMediaToDelete] = useState(null)
@@ -53,11 +55,15 @@ export default function MediaList() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        setSelectedImage(null)
+        setSelectedImageIndex(null)
         setSelectedVideo(null)
       }
+      if (selectedImageIndex !== null) {
+        if (e.key === 'ArrowRight') navigateImage(1)
+        if (e.key === 'ArrowLeft') navigateImage(-1)
+      }
     }
-    if (selectedImage || selectedVideo) {
+    if (selectedImageIndex !== null || selectedVideo) {
       window.addEventListener('keydown', handleKeyDown)
       document.body.style.overflow = 'hidden'
     }
@@ -65,7 +71,7 @@ export default function MediaList() {
       window.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = 'unset'
     }
-  }, [selectedImage, selectedVideo])
+  }, [selectedImageIndex, selectedImageList, selectedVideo])
 
   function getYoutubeEmbedUrl(url, autoplay = false) {
     if (!url) return null
@@ -110,6 +116,33 @@ export default function MediaList() {
   function cancelDelete() {
     setShowDeletePopup(false)
     setMediaToDelete(null)
+  }
+
+  function navigateImage(direction) {
+    setSelectedImageIndex(prev => {
+      const next = prev + direction
+      if (next < 0) return selectedImageList.length - 1
+      if (next >= selectedImageList.length) return 0
+      return next
+    })
+  }
+
+  function openLightbox(imageList, index) {
+    setSelectedImageList(imageList)
+    setSelectedImageIndex(index)
+  }
+
+  function handleTouchStart(e) {
+    setTouchStart(e.touches[0].clientX)
+  }
+
+  function handleTouchEnd(e) {
+    if (touchStart === null) return
+    const diff = touchStart - e.changedTouches[0].clientX
+    if (Math.abs(diff) > 50) {
+      navigateImage(diff > 0 ? 1 : -1)
+    }
+    setTouchStart(null)
   }
 
   // Split images by category
@@ -203,13 +236,13 @@ export default function MediaList() {
 
               {/* Image masonry */}
               <div className={`columns-2 md:columns-4 gap-2 md:gap-4 transition-opacity duration-400 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                {filteredProductionImages.map(item => (
+                {filteredProductionImages.map((item, index) => (
                   <div key={item.id} className="relative group mb-2 md:mb-4 break-inside-avoid">
                     <img
                       src={item.image}
                       alt="Media"
                       className="w-full rounded-md cursor-pointer transition-transform duration-300 group-hover:scale-[1.03]"
-                      onClick={() => setSelectedImage(item.image)}
+                      onClick={() => openLightbox(filteredProductionImages.map(i => i.image), index)}
                     />
                     {user && (
                       <div className="absolute top-1 right-1 md:top-2 md:right-2 flex gap-1 md:gap-2 z-10">
@@ -246,13 +279,13 @@ export default function MediaList() {
             <p className="text-gray-600">No personality photos available.</p>
           ) : (
             <div className="columns-2 md:columns-4 gap-2 md:gap-4">
-              {personalityImages.map(item => (
+              {personalityImages.map((item, index) => (
                 <div key={item.id} className="relative group mb-2 md:mb-4 break-inside-avoid">
                   <img
                     src={item.image}
                     alt="Media"
                     className="w-full rounded-md cursor-pointer transition-transform duration-300 group-hover:scale-[1.03]"
-                    onClick={() => setSelectedImage(item.image)}
+                    onClick={() => openLightbox(personalityImages.map(i => i.image), index)}
                   />
                   {user && (
                     <div className="absolute top-1 right-1 md:top-2 md:right-2 flex gap-1 md:gap-2 z-10">
@@ -345,25 +378,53 @@ export default function MediaList() {
         </div>
       )}
 
-      {/* IMAGE MODAL/LIGHTBOX */}
-      {selectedImage && (
+      {/* IMAGE LIGHTBOX WITH NAVIGATION */}
+      {selectedImageIndex !== null && (
         <div
           className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-2 md:p-4"
-          onClick={() => setSelectedImage(null)}
+          onClick={() => setSelectedImageIndex(null)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
+          {/* Close */}
           <button
-            className="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 transition-colors"
-            onClick={() => setSelectedImage(null)}
+            className="absolute top-4 right-4 text-white text-4xl hover:text-gray-300 transition-colors z-10"
+            onClick={() => setSelectedImageIndex(null)}
             aria-label="Close"
           >
             ×
           </button>
+
+          {/* Left Arrow */}
+          <button
+            className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 text-white text-5xl md:text-6xl hover:text-gray-300 transition-colors z-10 select-none"
+            onClick={(e) => { e.stopPropagation(); navigateImage(-1) }}
+            aria-label="Previous"
+          >
+            ‹
+          </button>
+
+          {/* Image */}
           <img
-            src={selectedImage}
+            src={selectedImageList[selectedImageIndex]}
             alt="Enlarged view"
             className="max-w-full max-h-full object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}
           />
+
+          {/* Right Arrow */}
+          <button
+            className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 text-white text-5xl md:text-6xl hover:text-gray-300 transition-colors z-10 select-none"
+            onClick={(e) => { e.stopPropagation(); navigateImage(1) }}
+            aria-label="Next"
+          >
+            ›
+          </button>
+
+          {/* Counter */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm opacity-70">
+            {selectedImageIndex + 1} / {selectedImageList.length}
+          </div>
         </div>
       )}
 
