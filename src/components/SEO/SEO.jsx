@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async'
 
 const BASE_URL = 'https://tenor.swietlicki.eu'
-const DEFAULT_IMAGE = `${BASE_URL}/Home%20page.jpg`
+const DEFAULT_IMAGE = `${BASE_URL}/home-page.jpg`
 
 export default function SEO({ title, description, path = '/', ogImage, type = 'website', breadcrumbs, children }) {
   const canonical = `${BASE_URL}${path}`

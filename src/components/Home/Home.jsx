@@ -145,7 +145,7 @@ export default function Home() {
       {/* Full-width Cover Photo */}
       <section className="relative w-full h-[110vh] overflow-hidden bg-black">
         <img
-          src="/Home page.jpg"
+          src="/home-page.jpg"
           alt="Marcus Swietlicki"
           className="absolute inset-0 w-full h-full object-cover object-center block"
           style={{
