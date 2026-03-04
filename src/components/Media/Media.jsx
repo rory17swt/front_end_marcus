@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllMedia, getAllProductions } from '../../services/media'
 import Spinner from '../Spinner/Spinner'
+import SEO from '../SEO/SEO'
 import { deleteMedia } from '../../services/media'
 import { UserContext } from '../../contexts/UserContext'
 
@@ -160,12 +161,18 @@ export default function MediaList() {
 
   return (
     <div className="min-h-screen bg-[#E8DCC8] px-0">
+      <SEO
+        title="Media | Marcus Swietlicki"
+        description="Production photos, personality portraits, and performance videos of lyric tenor Marcus Swietlicki. Featuring roles with ENO, Opera Holland Park, and Glyndebourne."
+        path="/media"
+        breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Media', path: '/media' }]}
+      />
 
       {/* COVER PHOTO */}
       <section className="relative w-full h-[70vh] md:h-[110vh] overflow-hidden bg-black">
         <img
           src="/Media Front Photo.jpg"
-          alt="Media"
+          alt="Marcus Swietlicki media gallery"
           className="absolute inset-0 w-full h-full object-cover object-top block"
           style={{
             transform: `translateY(${scrollY * 0.2}px)`,
@@ -236,11 +243,14 @@ export default function MediaList() {
 
               {/* Image masonry */}
               <div className={`columns-2 md:columns-4 gap-2 md:gap-4 transition-opacity duration-400 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                {filteredProductionImages.map((item, index) => (
+                {filteredProductionImages.map((item, index) => {
+                  const production = productions.find(p => p.slug === item.production_slug)
+                  const altText = production ? `Marcus Swietlicki in ${production.name}` : 'Marcus Swietlicki production photo'
+                  return (
                   <div key={item.id} className="relative group mb-2 md:mb-4 break-inside-avoid">
                     <img
                       src={item.image}
-                      alt="Media"
+                      alt={altText}
                       className="w-full rounded-md cursor-pointer transition-transform duration-300 group-hover:scale-[1.03]"
                       onClick={() => openLightbox(filteredProductionImages.map(i => i.image), index)}
                     />
@@ -261,7 +271,8 @@ export default function MediaList() {
                       </div>
                     )}
                   </div>
-                ))}
+                  )
+                })}
               </div>
 
               {filteredProductionImages.length === 0 && activeFilter && (
@@ -283,7 +294,7 @@ export default function MediaList() {
                 <div key={item.id} className="relative group mb-2 md:mb-4 break-inside-avoid">
                   <img
                     src={item.image}
-                    alt="Media"
+                    alt={`Marcus Swietlicki portrait ${index + 1}`}
                     className="w-full rounded-md cursor-pointer transition-transform duration-300 group-hover:scale-[1.03]"
                     onClick={() => openLightbox(personalityImages.map(i => i.image), index)}
                   />

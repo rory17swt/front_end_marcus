@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /
 Disallow: /admin
-Disallow: /login
+Disallow: /bioForm
+Disallow: /events/
+Disallow: /media/create
 
 Sitemap: https://tenor.swietlicki.eu/sitemap.xml
