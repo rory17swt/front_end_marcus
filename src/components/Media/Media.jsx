@@ -5,6 +5,7 @@ import Spinner from '../Spinner/Spinner'
 import SEO from '../SEO/SEO'
 import { deleteMedia } from '../../services/media'
 import { UserContext } from '../../contexts/UserContext'
+import { optimizeCloudinaryUrl } from '../../utils/cloudinary'
 
 export default function MediaList() {
   const [media, setMedia] = useState([])
@@ -171,7 +172,7 @@ export default function MediaList() {
       {/* COVER PHOTO */}
       <section className="relative w-full h-[70vh] md:h-[110vh] overflow-hidden bg-black">
         <img
-          src="/Media Front Photo.jpg"
+          src="/media-front-photo.jpg"
           alt="Marcus Swietlicki media gallery"
           className="absolute inset-0 w-full h-full object-cover object-top block"
           style={{
@@ -249,7 +250,8 @@ export default function MediaList() {
                   return (
                   <div key={item.id} className="relative group mb-2 md:mb-4 break-inside-avoid">
                     <img
-                      src={item.image}
+                      src={optimizeCloudinaryUrl(item.image, { width: 500 })}
+                      loading="lazy"
                       alt={altText}
                       className="w-full rounded-md cursor-pointer transition-transform duration-300 group-hover:scale-[1.03]"
                       onClick={() => openLightbox(filteredProductionImages.map(i => i.image), index)}
@@ -293,8 +295,9 @@ export default function MediaList() {
               {personalityImages.map((item, index) => (
                 <div key={item.id} className="relative group mb-2 md:mb-4 break-inside-avoid">
                   <img
-                    src={item.image}
+                    src={optimizeCloudinaryUrl(item.image, { width: 500 })}
                     alt={`Marcus Swietlicki portrait ${index + 1}`}
+                    loading="lazy"
                     className="w-full rounded-md cursor-pointer transition-transform duration-300 group-hover:scale-[1.03]"
                     onClick={() => openLightbox(personalityImages.map(i => i.image), index)}
                   />

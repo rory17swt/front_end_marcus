@@ -296,6 +296,7 @@ export default function Home() {
                                     <img
                                       src={event.image}
                                       alt={event.title}
+                                      loading="lazy"
                                       className="w-full h-36 object-cover rounded-t-lg"
                                     />
                                     <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg">
@@ -386,6 +387,7 @@ export default function Home() {
                               <img
                                 src={event.image}
                                 alt={event.title}
+                                loading="lazy"
                                 className="w-full h-56 lg:h-72 object-cover rounded-t-lg"
                               />
                               <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-3 lg:p-4 rounded-b-lg min-h-24 lg:min-h-28">

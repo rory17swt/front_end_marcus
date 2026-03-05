@@ -68,7 +68,8 @@ export default function Contact() {
                 {/* Left Image */}
                 <div className="lg:w-1/2">
                     <img
-                        src="/Contact page.jpg"
+                        src="/contact-page.jpg"
+                        loading="lazy"
                         alt="Contact Illustration"
                         className="w-full h-full object-cover rounded-lg shadow-md"
                     />
