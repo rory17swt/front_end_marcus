@@ -20,6 +20,7 @@ function App() {
   const location = useLocation()
 
   useEffect(() => {
+    window.scrollTo(0, 0)
     setIsPageReady(false)
     const timer = setTimeout(() => {
       setIsPageReady(true)
