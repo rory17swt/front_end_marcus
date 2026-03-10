@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { submitContactForm } from "../../services/contact";
 import { getCSRF } from "../../services/contact";
+import SEO from "../SEO/SEO";
 
 export default function Contact() {
     const [formData, setFormData] = useState({
@@ -56,6 +57,11 @@ export default function Contact() {
 
     return (
         <div className="w-full bg-gray-50 flex flex-col items-center py-12">
+            <SEO
+                title="Contact | Marcus Swietlicki"
+                description="Get in touch with lyric tenor Marcus Swietlicki for performance enquiries, collaborations, and bookings."
+                path="/contact"
+            />
             {/* Form Section */}
             <section className="flex flex-col lg:flex-row w-full max-w-6xl px-6 lg:px-0 gap-10">
                 {/* Left Image */}

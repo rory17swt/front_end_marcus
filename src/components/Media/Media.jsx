@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllMedia, getAllProductions } from '../../services/media'
 import Spinner from '../Spinner/Spinner'
+import SEO from '../SEO/SEO'
 import { deleteMedia } from '../../services/media'
 import { UserContext } from '../../contexts/UserContext'
 import { optimizeCloudinaryUrl } from '../../utils/cloudinary'
@@ -161,6 +162,11 @@ export default function MediaList() {
 
   return (
     <div className="min-h-screen bg-[#E8DCC8] px-0">
+      <SEO
+        title="Media | Marcus Swietlicki"
+        description="Production photos, portraits, and performance videos of lyric tenor Marcus Swietlicki. Featuring roles with ENO, Opera Holland Park, and Glyndebourne."
+        path="/media"
+      />
       {/* COVER PHOTO */}
       <section className="relative w-full h-[70vh] md:h-[110vh] overflow-hidden bg-black">
         <img

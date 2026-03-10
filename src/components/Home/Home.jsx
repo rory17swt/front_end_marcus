@@ -4,6 +4,7 @@ import { getAllEvents, deleteEvent } from '../../services/events'
 import { getPublicBio } from '../../services/bio'
 import { UserContext } from '../../contexts/UserContext'
 import Spinner from '../Spinner/Spinner'
+import SEO from '../SEO/SEO'
 import { FaInstagram, FaYoutube } from 'react-icons/fa'
 
 export default function Home() {
@@ -114,6 +115,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#E8DCC8] px-0">
+      <SEO
+        title="Marcus Swietlicki | Lyric Tenor"
+        description="Marcus Swietlicki is a Scottish-Polish lyric tenor based in London, performing with English National Opera, Glyndebourne, and Opera Holland Park."
+        path="/"
+      />
       {/* Full-width Cover Photo */}
       <section className="relative w-full h-[110vh] overflow-hidden bg-black">
         <img
