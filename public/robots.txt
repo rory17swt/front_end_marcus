@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /bioForm
+Disallow: /events/
+Disallow: /media/create
+
+Sitemap: https://swietlicki.eu/sitemap.xml
